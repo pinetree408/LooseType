@@ -2271,7 +2271,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
         super.onResume();
         final TextServicesManager tsm = (TextServicesManager) getSystemService(
                 Context.TEXT_SERVICES_MANAGER_SERVICE);
-        mScs = tsm.newSpellCheckerSession(null, null, this, true);
+        mScs = tsm.newSpellCheckerSession(null, Locale.KOREA, this, true);
         if (mScs != null) {
             // Instantiate TextInfo for each query
             // TextInfo can be passed a sequence number and a cookie number to identify the resulten
