@@ -2251,7 +2251,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             "Lane"
     };
 
-    ArrayList<Integer> resultList = new ArrayList<Integer>();
     int index = 0;
 
     BufferedWriter out;
@@ -2271,15 +2270,22 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
         super.onResume();
         final TextServicesManager tsm = (TextServicesManager) getSystemService(
                 Context.TEXT_SERVICES_MANAGER_SERVICE);
-        mScs = tsm.newSpellCheckerSession(null, Locale.KOREA, this, true);
+        mScs = tsm.newSpellCheckerSession(null, Locale.ENGLISH, this, false);
         if (mScs != null) {
             // Instantiate TextInfo for each query
             // TextInfo can be passed a sequence number and a cookie number to identify the resulten
             if (isSentenceSpellCheckSupported()) {
                 // Note that getSentenceSuggestions works on JB or later.
                 Log.d(TAG, "Sentence spellchecking supported.");
-                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("marco")}, 20);
+                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("marc's")}, 20);
+                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("pa'p")}, 20);
+                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("de'n")}, 20);
                 for (String item : result1) {
+                    /*
+                    try {
+                        mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item.substring(item.length()-2) + "'" + ("" + item.charAt(item.length()-1)))}, 20);
+                    } catch (StringIndexOutOfBoundsException e) {
+                    }*/
                     mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item)}, 20);
                 }
             } else {
@@ -2311,24 +2317,29 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
     private void dumpSuggestionsInfoInternal(
             final StringBuilder sb, final StringBuilder rankList, final SuggestionsInfo si, final int length, final int offset) {
         // Returned suggestions are contained in SuggestionsInfo
+        //Log.d(TAG, "Attr: " + String.valueOf(si.getSuggestionsAttributes()));
         final int len = si.getSuggestionsCount();
-        Log.d(TAG, "test: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len));
-        sb.append('\n');
-        rankList.append("\n");
+        //Log.d(TAG, "test: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len));
+        //sb.append('\n');
+        //rankList.append("\n");
         for (int j = 0; j < len; ++j) {
             if (j != 0) {
                 sb.append(", ");
             }
             if (si.getSuggestionAt(j).equals(answer1[index])) {
                 rankList.append(j);
-                resultList.add(j);
             }
             sb.append(si.getSuggestionAt(j));
         }
-        sb.append(" (" + len + ")");
-        if (length != NOT_A_LENGTH) {
-            sb.append(" length = " + length + ", offset = " + offset);
-        }
+        //sb.append(" (" + len + ")");
+        //if (length != NOT_A_LENGTH) {
+        //    sb.append(" length = " + length + ", offset = " + offset);
+        //}
+        Log.d(TAG,
+                "~ Result: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len) +
+                        " Tag: " + String.valueOf(si.getSuggestionsAttributes()) +
+                        " Rank: " + rankList.toString()
+                );
     }
     /**
      * Callback for {@link SpellCheckerSession#getSuggestions(TextInfo, int)}
@@ -2366,7 +2377,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             return;
         }
         //Log.d(TAG, "onGetSentenceSuggestions");
-        //Log.d(TAG, "Index: " + String.valueOf(index));
         final StringBuilder sb = new StringBuilder();
         final StringBuilder rankList = new StringBuilder();
 
@@ -2378,7 +2388,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             }
         }
         index++;
-        Log.d(TAG, rankList.toString());
+        Log.d(TAG, "~ Suggetion: " + sb.toString());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
