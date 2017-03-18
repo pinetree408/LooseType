@@ -6,6 +6,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="100px"
+        android:id="@+id/editText"
         />
     <TextView
         android:id="@+id/main"

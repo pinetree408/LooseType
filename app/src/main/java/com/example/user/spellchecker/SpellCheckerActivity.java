@@ -11,16 +11,19 @@ import android.view.textservice.SuggestionsInfo;
 import android.view.textservice.TextInfo;
 import android.view.textservice.TextServicesManager;
 import android.view.textservice.SpellCheckerSession.SpellCheckerSessionListener;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.StringBuilder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+
+import com.example.Suggestion;
 
 public class SpellCheckerActivity extends AppCompatActivity implements SpellCheckerSessionListener {
     private static final String TAG = SpellCheckerActivity.class.getSimpleName();
@@ -29,7 +32,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
     private SpellCheckerSession mScs;
     String[] answer1 = {
             "Marcos",
-            "Marshall",
             "Emery",
             "Chance",
             "Daniel",
@@ -242,14 +244,11 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             "Jada",
             "Isabelle",
             "Derek",
-            "Piper",
-            "Isabelle",
             "Derek",
             "Piper"
     };
     String[] result1 = {
             "marcs",
-            "g",
             "emeenry",
             "cuanve",
             "daniel",
@@ -462,8 +461,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             "jarq",
             "iasbelle",
             "derek",
-            "piperpiperpiper",
-            "t",
             "rerek",
             "iper"
     };
@@ -2255,12 +2252,57 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
 
     BufferedWriter out;
 
+    Suggestion suggestion;
+
+    EditText mTextView;
+
+    List<String> suggestResultList;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mMainView = (TextView)findViewById(R.id.main);
+        suggestion = new Suggestion();
+        mTextView=(EditText)findViewById(R.id.editText);
+        mTextView.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d(TAG, "Seq = " + s);
+                //Log.d(TAG, suggestion.getSuggestion(s.toString()));
+                suggestResultList = suggestion.getSuggestion(s.toString());
+                /*
+                for (String item: result1) {
+                    suggestResultList = suggestion.getSuggestion(item);
+                    String suggestResult = suggestResultList.get(0);
+                    suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                    if (!suggestResult.equals(answer1[index])) {
+                        Log.d(TAG, "Answer: " + answer1[index] + " Input: " + item + " : " + suggestResultList.toString());
+                    }
+                    index++;
+                }
+                */
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMainView.setText(suggestResultList.toString());
+                    }
+                });
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
     private boolean isSentenceSpellCheckSupported() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
@@ -2277,17 +2319,18 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             if (isSentenceSpellCheckSupported()) {
                 // Note that getSentenceSuggestions works on JB or later.
                 Log.d(TAG, "Sentence spellchecking supported.");
+
                 //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("marc's")}, 20);
                 //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("pa'p")}, 20);
                 //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("de'n")}, 20);
-                for (String item : result1) {
+                //for (String item : result1) {
                     /*
                     try {
                         mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item.substring(item.length()-2) + "'" + ("" + item.charAt(item.length()-1)))}, 20);
                     } catch (StringIndexOutOfBoundsException e) {
                     }*/
-                    mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item)}, 20);
-                }
+                //    mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item)}, 20);
+                //}
             } else {
                 // Note that getSuggestions() is a deprecated API.
                 // It is recommended for an application running on Jelly Bean or later
