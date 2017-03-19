@@ -756,23 +756,27 @@ public class Suggestion {
             "evie"
     };
 
-    public List<String> getSuggestion(String input) {
+    LevenshteinDistance lsd;
 
-        LevenshteinDistance lsd = new LevenshteinDistance();
+    public Suggestion() {
+        lsd = new LevenshteinDistance();
+    }
+
+    public List<String> getSuggestion(String input) {
 
         List<Double> distList = new ArrayList<Double>();
 
-        for (String item : dictionary) {
-            double computedDist = lsd.computeLevenshteinDistance(item, input);
+        double minDist = 1000.0;
+
+        for (int i = 0; i < dictionary.length; i++) {
+            double computedDist = lsd.computeLevenshteinDistance(dictionary[i], input);
             distList.add(computedDist);
-        }
-
-        double minDist = distList.get(0);
-
-        for (int i = 1; i < distList.size(); i++) {
-            double newNumber = distList.get(i);
-            if (newNumber < minDist) {
-                minDist = newNumber;
+            if (i == 0) {
+                minDist = computedDist;
+            } else {
+                if (computedDist < minDist) {
+                    minDist = computedDist;
+                }
             }
         }
 
@@ -789,81 +793,100 @@ public class Suggestion {
     }
 
     public class LevenshteinDistance {
+        String line1 = "qwertyuiop", line2 = "asdfghjkl", line3 = "zxcvbnm";
+        double nomalize = Math.sqrt(Math.pow(3,2) + Math.pow(8.5, 2));
+        double substitutionCost;
+        double deletionCost = 1.0;
+        double insertionCost = 1.0;
 
         private double minimum(double a, double b, double c) {
             return Math.min(Math.min(a, b), c);
         }
 
         public double computeLevenshteinDistance(CharSequence lhs, CharSequence rhs) {
-            double[][] distance = new double[lhs.length() + 1][rhs.length() + 1];
 
-            for (int i = 0; i <= lhs.length(); i++)
+            int lhsLength = lhs.length();
+            int rhsLength = rhs.length();
+
+            double[][] distance = new double[lhsLength + 1][rhsLength + 1];
+
+            for (int i = 0; i <= lhsLength; i++)
                 distance[i][0] = i;
-            for (int j = 1; j <= rhs.length(); j++)
+            for (int j = 1; j <= rhsLength; j++)
                 distance[0][j] = j;
 
-            for (int i = 1; i <= lhs.length(); i++)
-                for (int j = 1; j <= rhs.length(); j++)
+            for (int i = 1; i <= lhsLength; i++) {
+                for (int j = 1; j <= rhsLength; j++) {
+                    /*
+                    if (lhs.charAt(i - 1) == rhs.charAt(j - 1)) {
+                        substitutionCost = 0.0;
+                    } else {
+                        substitutionCost = 1.0;
+                    }
+                    */
+                    substitutionCost = getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1));
+                    //deletionCost = getPenelty(lhs.charAt(i), rhs.charAt(j));
+                    //insertionCost = getPenelty(lhs.charAt(i), rhs.charAt(j));
                     distance[i][j] = minimum(
-                            distance[i - 1][j] + 1,
-                            distance[i][j - 1] + 1,
-                            distance[i - 1][j - 1] + ((lhs.charAt(i - 1) == rhs.charAt(j - 1)) ? 0 : getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1))));
+                            distance[i - 1][j] + deletionCost, // deletion
+                            distance[i][j - 1] + insertionCost, // insertion
+                            distance[i - 1][j - 1] + substitutionCost); // substitution
+                }
+            }
 
-            double ret = distance[lhs.length()][rhs.length()];
-            distance = null;
-            return ret;
+            return distance[lhsLength][rhsLength];
         }
-        public double getPenelty(char a, char b)
-        {
-            String line1 = "qwertyuiop", line2 = "asdfghjkl", line3 = "zxcvbnm";
-            int indexA = line1.indexOf(""+a);
-            int indexB = -1;
-            if(indexA != -1){
-                indexB = line1.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.abs(indexA - indexB);
-                }
-                indexB = line2.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.sqrt(1 + Math.pow(indexA - indexB, 2));
-                }
-                indexB = line3.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.sqrt(4 + Math.pow(indexA - indexB, 2));
-                }
-            }
-            indexA = line2.indexOf(""+a);
-            if(indexA != -1){
-                indexB = line1.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.sqrt(1 + Math.pow(indexA - indexB, 2));
-                }
-                indexB = line2.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.abs(indexA - indexB);
-                }
-                indexB = line3.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.sqrt(1 + Math.pow(indexA - indexB, 2));
-                }
-            }
-            indexA = line3.indexOf(""+a);
-            if(indexA != -1){
-                indexB = line1.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.sqrt(4 + Math.pow(indexA - indexB, 2));
-                }
-                indexB = line2.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.sqrt(1 + Math.pow(indexA - indexB, 2));
-                }
-                indexB = line3.indexOf(""+b);
-                if (indexB != -1){
-                    return Math.abs(indexA - indexB);
-                }
-            }
-            return -10000;
 
+        public double getPositionX(char a) {
+
+            double positionX = 0.0;
+            if (line1.indexOf(a) != -1) {
+                positionX = line1.indexOf(a);
+            } else {
+                if (line2.indexOf(a) != -1) {
+                    positionX = line2.indexOf(a) + 0.5;
+                } else {
+                    if (line3.indexOf(a) != -1) {
+                        positionX = line3.indexOf(a) + 1.5;
+                    }
+                }
+            }
+
+            return positionX;
+        }
+
+        public double getPositionY(char a) {
+
+            double positionY = 0.0;
+
+            if (line1.indexOf(a) != -1) {
+                positionY = 0.0;
+            } else {
+                if (line2.indexOf(a) != -1) {
+                    positionY = 1.0;
+                } else {
+                    if (line3.indexOf(a) != -1) {
+                        positionY = 2.0;
+                    }
+                }
+            }
+
+            return positionY;
+        }
+
+        public double getPenelty(char a, char b) {
+            double distX = getPositionX(a) - getPositionX(b);
+            double distY = getPositionY(a) - getPositionY(b);
+            if (distX == 0.0 && distY == 0.0) {
+                return 0.0;
+            }
+            if (distX == 0.0 && distY != 0.0) {
+                return Math.abs(distY);
+            }
+            if (distY == 0.0 && distX != 0.0) {
+                return Math.abs(distX);
+            }
+            return Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
         }
     }
 }

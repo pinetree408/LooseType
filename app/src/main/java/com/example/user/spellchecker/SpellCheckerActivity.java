@@ -2271,9 +2271,8 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d(TAG, "Seq = " + s);
-                //Log.d(TAG, suggestion.getSuggestion(s.toString()));
-                suggestResultList = suggestion.getSuggestion(s.toString());
-                /*
+                //suggestResultList = suggestion.getSuggestion(s.toString());
+
                 for (String item: result1) {
                     suggestResultList = suggestion.getSuggestion(item);
                     String suggestResult = suggestResultList.get(0);
@@ -2283,7 +2282,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                     }
                     index++;
                 }
-                */
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2420,6 +2418,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             return;
         }
         //Log.d(TAG, "onGetSentenceSuggestions");
+
         final StringBuilder sb = new StringBuilder();
         final StringBuilder rankList = new StringBuilder();
 
