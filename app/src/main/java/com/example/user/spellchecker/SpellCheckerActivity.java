@@ -1804,7 +1804,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
 
     String[] result5 = {
             "kinsly",
-            "p",
             "ichad",
             "russwl",
             "wrmwnr",
@@ -2027,7 +2026,6 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
 
     String[] answer5 = {
             "Kinsley",
-            "Skylar",
             "Richard",
             "Russell",
             "Armando",
@@ -2248,7 +2246,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             "Lane"
     };
 
-    int index = 0;
+    int index;
 
     BufferedWriter out;
 
@@ -2273,14 +2271,77 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                 Log.d(TAG, "Seq = " + s);
                 //suggestResultList = suggestion.getSuggestion(s.toString());
 
-                for (String item: result1) {
-                    suggestResultList = suggestion.getSuggestion(item);
-                    String suggestResult = suggestResultList.get(0);
-                    suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                    if (!suggestResult.equals(answer1[index])) {
-                        Log.d(TAG, "Answer: " + answer1[index] + " Input: " + item + " : " + suggestResultList.toString());
+                int answerCount = 0;
+                try {
+                    index = 0;
+                    for (String item : result1) {
+                        suggestResultList = suggestion.getSuggestion(item);
+                        String suggestResult = suggestResultList.get(0);
+                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                        String answer = answer1[index];
+                        if (!suggestResult.equals(answer)) {
+                            answerCount++;
+                            Log.d(TAG, "1 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                        }
+                        index++;
                     }
-                    index++;
+
+                    index = 0;
+                    for (String item : result2) {
+                        suggestResultList = suggestion.getSuggestion(item);
+                        String suggestResult = suggestResultList.get(0);
+                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                        String answer = answer2[index];
+                        if (!suggestResult.equals(answer)) {
+                            answerCount++;
+                            Log.d(TAG, "2 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                        }
+                        index++;
+                    }
+
+                    index = 0;
+                    for (String item : result3) {
+                        suggestResultList = suggestion.getSuggestion(item);
+                        String suggestResult = suggestResultList.get(0);
+                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                        String answer = answer3[index];
+                        if (!suggestResult.equals(answer)) {
+                            answerCount++;
+                            Log.d(TAG, "3 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                        }
+                        index++;
+                    }
+
+                    index = 0;
+                    for (String item : result4) {
+                        suggestResultList = suggestion.getSuggestion(item);
+                        String suggestResult = suggestResultList.get(0);
+                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                        String answer = answer4[index];
+                        if (!suggestResult.equals(answer)) {
+                            answerCount++;
+                            Log.d(TAG, "4 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                        }
+                        index++;
+                    }
+
+                    index = 0;
+                    for (String item : result5) {
+                        suggestResultList = suggestion.getSuggestion(item);
+                        String suggestResult = suggestResultList.get(0);
+                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                        String answer = answer5[index];
+                        if (!suggestResult.equals(answer)) {
+                            answerCount++;
+                            Log.d(TAG, "5 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                        }
+                        index++;
+                    }
+
+                    Log.d(TAG, "Total: " + String.valueOf(answerCount));
+
+                } catch (Exception e) {
+                    Log.d(TAG, "Error: " + e.toString());
                 }
 
                 runOnUiThread(new Runnable() {
