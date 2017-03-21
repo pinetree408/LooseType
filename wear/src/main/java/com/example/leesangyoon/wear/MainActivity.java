@@ -1,462 +1,26 @@
 package com.example.leesangyoon.wear;
 
+import android.util.Log;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.BoxInsetLayout;
 import android.view.View;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import com.example.Suggestion;
 
-public class MainActivity extends WearableActivity {
-    String[] answer1 = {
-            "Marcos",
-            "Emery",
-            "Chance",
-            "Daniel",
-            "Richard",
-            "Hannah",
-            "Selena",
-            "Cecilia",
-            "Colt",
-            "Jesus",
-            "Gunner",
-            "Aspen",
-            "Saul",
-            "Atlas",
-            "Maddox",
-            "Vivienne",
-            "Elsie",
-            "Chris",
-            "Cheyenne",
-            "Kira",
-            "Angelina",
-            "Cruz",
-            "Reed",
-            "Brantley",
-            "Lucia",
-            "Madeline",
-            "Lilly",
-            "Dylan",
-            "Myles",
-            "Aubrey",
-            "Olive",
-            "Dakota",
-            "Solomon",
-            "Brooke",
-            "Mateo",
-            "April",
-            "Diego",
-            "Gabriela",
-            "Julianna",
-            "Clara",
-            "Hayden",
-            "Moses",
-            "Russell",
-            "Andres",
-            "Augustus",
-            "Eduardo",
-            "Noel",
-            "Naomi",
-            "Ellis",
-            "Lawrence",
-            "Jameson",
-            "Christina",
-            "Ethan",
-            "Tyler",
-            "Mckenna",
-            "Natalie",
-            "Carmen",
-            "Annie",
-            "Omar",
-            "Jenna",
-            "Daniela",
-            "Cesar",
-            "Walter",
-            "Marilyn",
-            "Angelica",
-            "Keith",
-            "Noah",
-            "Theo",
-            "Warren",
-            "Lane",
-            "Victor",
-            "Anastasia",
-            "Jeffrey",
-            "Elizabeth",
-            "Desmond",
-            "Sarah",
-            "Jorge",
-            "Kevin",
-            "Marlee",
-            "Tristan",
-            "Grace",
-            "Scarlett",
-            "Roman",
-            "Margaret",
-            "Miriam",
-            "Timothy",
-            "Delaney",
-            "Ellie",
-            "Anthony",
-            "Sean",
-            "Katherine",
-            "Ryder",
-            "Corbin",
-            "Edgar",
-            "Clayton",
-            "Francisco",
-            "Haley",
-            "Benson",
-            "Bella",
-            "Ashley",
-            "Lillian",
-            "Griffin",
-            "Alyssa",
-            "Nixon",
-            "Robert",
-            "Abram",
-            "Summer",
-            "Joshua",
-            "Carlos",
-            "Fernando",
-            "Gideon",
-            "Melany",
-            "Tucker",
-            "Jake",
-            "Mariana",
-            "Genesis",
-            "Alexandra",
-            "Ronald",
-            "Dexter",
-            "Josiah",
-            "Harper",
-            "Kingston",
-            "Abel",
-            "Malaysia",
-            "Leah",
-            "Camilla",
-            "Jacqueline",
-            "Jennifer",
-            "Talia",
-            "Ezekiel",
-            "Brendan",
-            "Rachel",
-            "Hugo",
-            "Lana",
-            "Trenton",
-            "Isabella",
-            "Adelaide",
-            "Jamie",
-            "Moises",
-            "Gemma",
-            "Braden",
-            "Juan",
-            "Dominic",
-            "August",
-            "Callie",
-            "Daphne",
-            "Harmony",
-            "Paul",
-            "Scott",
-            "Connor",
-            "Derrick",
-            "Fatima",
-            "Andy",
-            "Finn",
-            "Eloise",
-            "Ariel",
-            "Aubrie",
-            "Faith",
-            "Dennis",
-            "Frank",
-            "Manuel",
-            "Hope",
-            "Molly",
-            "Kendra",
-            "Elena",
-            "Maggie",
-            "Ari",
-            "Jude",
-            "Hunter",
-            "Graham",
-            "Dillon",
-            "Allyson",
-            "Sylvia",
-            "Remington",
-            "Malcolm",
-            "Daniella",
-            "Holly",
-            "Paxton",
-            "Gabriella",
-            "Camila",
-            "Phoebe",
-            "Ahmed",
-            "Dawson",
-            "Rebecca",
-            "Keegan",
-            "Adriana",
-            "Angela",
-            "Marley",
-            "Eden",
-            "Brynn",
-            "Emanuel",
-            "Megan",
-            "Messiah",
-            "Kennedy",
-            "Giselle",
-            "Lauren",
-            "Damon",
-            "Jade",
-            "Amelia",
-            "Mia",
-            "Landon",
-            "Alanna",
-            "Anna",
-            "Tanner",
-            "Amara",
-            "Harvey",
-            "Joseph",
-            "Mary",
-            "Ricardo",
-            "Wyatt",
-            "Jada",
-            "Isabelle",
-            "Derek",
-            "Derek",
-            "Piper"
-    };
-    String[] result1 = {
-            "marcs",
-            "emeenry",
-            "cuanve",
-            "daniel",
-            "rchard",
-            "hannah",
-            "swlema",
-            "cecola",
-            "colt",
-            "jrsus",
-            "gunner",
-            "aspen",
-            "saul",
-            "atlas",
-            "maddox",
-            "vivienne",
-            "elsie",
-            "chrs",
-            "cheynn",
-            "kira",
-            "angelinw",
-            "cruz",
-            "reed",
-            "brantly",
-            "oucia",
-            "madeline",
-            "lilly",
-            "dylwn",
-            "mylrs",
-            "aubey",
-            "olve",
-            "dwkow",
-            "solomon",
-            "booke",
-            "mqteo",
-            "aprp",
-            "diego",
-            "gabrielw",
-            "juliannw",
-            "cowrw",
-            "hqyden",
-            "mss",
-            "russel",
-            "andrs",
-            "augustie",
-            "eduard",
-            "noel",
-            "naom",
-            "elliss",
-            "lawrence",
-            "jwmrson",
-            "chrustnq",
-            "ethan",
-            "tyler",
-            "mckennw",
-            "natalie",
-            "carmen",
-            "annie",
-            "omar",
-            "iejna",
-            "dqneoa",
-            "desar",
-            "walter",
-            "malnlyn",
-            "angeoica",
-            "keith",
-            "niau",
-            "heo",
-            "wwrreh",
-            "ln",
-            "vc",
-            "whassua",
-            "jefery",
-            "epuzabeth",
-            "desmond",
-            "sarah",
-            "jorge",
-            "kevin",
-            "marlee",
-            "trstaj",
-            "grqfe",
-            "ecalett",
-            "rimaj",
-            "margaret",
-            "miriam",
-            "timohy",
-            "delany",
-            "ellie",
-            "anthony",
-            "sean",
-            "iatherinr",
-            "ryder",
-            "cibun",
-            "edgq",
-            "coayton",
-            "trncusco",
-            "haoey",
-            "bnwoh",
-            "belka",
-            "wsuoe",
-            "oillian",
-            "gruffn",
-            "wlyssa",
-            "nixon",
-            "rbert",
-            "abrak",
-            "summer",
-            "ioshua",
-            "carlis",
-            "fernaando",
-            "gideon",
-            "mekqny",
-            "tufher",
-            "jqoe",
-            "mqriqna",
-            "genesis",
-            "alexandra",
-            "rinale",
-            "dexter",
-            "josiay",
-            "hwrer",
-            "ingstn",
-            "abel",
-            "malaysa",
-            "leqah",
-            "cwmlla",
-            "jwcquepn",
-            "jennifer",
-            "twlua",
-            "ezekuep",
-            "nrejran",
-            "rchl",
-            "hugo",
-            "lana",
-            "trenn",
-            "isbelle",
-            "adelid",
-            "iami",
-            "moiwes",
-            "gmmq",
-            "hradn",
-            "juan",
-            "dominic",
-            "agust",
-            "callie",
-            "dqphne",
-            "jarmony",
-            "pap",
-            "scoot",
-            "connor",
-            "derrfk",
-            "tatim",
-            "andy",
-            "finn",
-            "elose",
-            "wrep",
-            "wbrie",
-            "fwith",
-            "eenns",
-            "fqni",
-            "mqnul",
-            "ho",
-            "milly",
-            "kendra",
-            "kena",
-            "mggie",
-            "wri",
-            "jude",
-            "hjter",
-            "gahwm",
-            "rillon",
-            "allyson",
-            "syovi",
-            "rekington",
-            "mqkdolmn",
-            "dqnielw",
-            "hlp",
-            "pson",
-            "gabripeepa",
-            "fmika",
-            "phoehe",
-            "hmed",
-            "dawson",
-            "ebeca",
-            "keegan",
-            "driana",
-            "wngela",
-            "meowy",
-            "den",
-            "brynn",
-            "emwnuel",
-            "mfn",
-            "messiah",
-            "knnedy",
-            "giselle",
-            "lurwn",
-            "daknon",
-            "jqre",
-            "akelia",
-            "mia",
-            "landon",
-            "aownnq",
-            "wnna",
-            "tnner",
-            "amara",
-            "hwrvy",
-            "joseph",
-            "mary",
-            "ricardo",
-            "wyatt",
-            "jarq",
-            "iasbelle",
-            "derek",
-            "rerek",
-            "iper"
-    };
+import android.view.MotionEvent;
 
-    private static final SimpleDateFormat AMBIENT_DATE_FORMAT =
-            new SimpleDateFormat("HH:mm", Locale.US);
+public class MainActivity extends WearableActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private BoxInsetLayout mContainerView;
     private TextView mTextView;
-    private TextView mClockView;
+
+    private View keyboardView;
     List<String> suggestResultList;
-    int index = 0;
     Suggestion suggestion;
 
     @Override
@@ -467,17 +31,35 @@ public class MainActivity extends WearableActivity {
 
         mContainerView = (BoxInsetLayout) findViewById(R.id.container);
         mTextView = (TextView) findViewById(R.id.text);
-        mClockView = (TextView) findViewById(R.id.clock);
+
+        keyboardView = (View) findViewById(R.id.keyboard);
         suggestion = new Suggestion();
 
-        /*
-        for (String item: result1) {
-            suggestResultList = suggestion.getSuggestion(item);
-            mTextView.setText(suggestResultList.toString());
-            index++;
-        }
-        */
-        mTextView.setText("test");
+        keyboardView.setOnTouchListener(new View.OnTouchListener() {   //터치 이벤트 리스너 등록(누를때와 뗐을때를 구분)
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (keyboardView.getClass() == v.getClass()) {
+                        long start = System.currentTimeMillis();
+                        suggestResultList = suggestion.getSuggestion("marcs");
+                        long end = System.currentTimeMillis();
+                        Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
+                        mTextView.setText(suggestResultList.toString());
+                    }
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (keyboardView.getClass() == v.getClass()) {
+                        suggestResultList = suggestion.getSuggestion("pap");
+                        mTextView.setText(suggestResultList.toString());
+                    }
+                }
+                return true;
+            }
+        });
+
     }
 
     @Override
@@ -500,24 +82,12 @@ public class MainActivity extends WearableActivity {
 
     private void updateDisplay() {
 
-        //for (String item: result1) {
-        //    suggestResultList = suggestion.getSuggestion(item);
-        //    mTextView.setText(suggestResultList.toString());
-        //    index++;
-        //}
-        suggestResultList = suggestion.getSuggestion("marcs");
-        mTextView.setText(suggestResultList.toString());
-
         if (isAmbient()) {
             mContainerView.setBackgroundColor(getResources().getColor(android.R.color.black));
             mTextView.setTextColor(getResources().getColor(android.R.color.white));
-            mClockView.setVisibility(View.VISIBLE);
-
-            mClockView.setText(AMBIENT_DATE_FORMAT.format(new Date()));
         } else {
             mContainerView.setBackground(null);
             mTextView.setTextColor(getResources().getColor(android.R.color.black));
-            mClockView.setVisibility(View.GONE);
         }
     }
 }

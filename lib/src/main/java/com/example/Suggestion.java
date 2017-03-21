@@ -1,9 +1,7 @@
 package com.example;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class Suggestion {
 
@@ -768,18 +766,13 @@ public class Suggestion {
 
         List<Double> distList = new ArrayList<Double>();
 
-        double minDist = 1000.0;
+        double minDist = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < dictionary.length; i++) {
-            //double computedDist = lsd.computeLevenshteinDistance(dictionary[i], input);
-            double computedDist = lsd.execute(dictionary[i], input);
+            double computedDist = lsd.computeLevenshteinDistance(dictionary[i], input);
             distList.add(computedDist);
-            if (i == 0) {
+            if (computedDist < minDist) {
                 minDist = computedDist;
-            } else {
-                if (computedDist < minDist) {
-                    minDist = computedDist;
-                }
             }
         }
 
@@ -825,7 +818,6 @@ public class Suggestion {
     public class LevenshteinDistance {
 
         String line1 = "qwertyuiop", line2 = "asdfghjkl", line3 = "zxcvbnm";
-        double nomalize = Math.sqrt(Math.pow(3,2) + Math.pow(8.5, 2));
 
         double substitutionCost;
         double deletionCost = 1.0;
@@ -887,10 +879,10 @@ public class Suggestion {
                 positionY = 0.0;
             } else {
                 if (line2.indexOf(a) != -1) {
-                    positionY = 1.0;
+                    positionY = Math.sqrt(1 - Math.pow(0.5, 2));
                 } else {
                     if (line3.indexOf(a) != -1) {
-                        positionY = 2.0;
+                        positionY = 2 * Math.sqrt(1 - Math.pow(0.5, 2));
                     }
                 }
             }
@@ -899,85 +891,15 @@ public class Suggestion {
         }
 
         public double getPenelty(char a, char b) {
+            if(a==b)
+                return -0.2;
+
             double distX = getPositionX(a) - getPositionX(b);
             double distY = getPositionY(a) - getPositionY(b);
 
             double ret = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
 
-            ret = Math.round(ret);
-
             return ret;
-        }
-
-        public int execute(String source, String target) {
-
-            int insertCost = 2;
-            int deleteCost = 2;
-            int swapCost = 1;
-
-            if (source.length() == 0) {
-                return target.length() * insertCost;
-            }
-            if (target.length() == 0) {
-                return source.length() * deleteCost;
-            }
-            int[][] table = new int[source.length()][target.length()];
-            Map<Character, Integer> sourceIndexByCharacter = new HashMap<Character, Integer>();
-            if (source.charAt(0) != target.charAt(0)) {
-                table[0][0] = Math.min((int) getPenelty(source.charAt(0), target.charAt(0)), deleteCost + insertCost);
-            }
-            sourceIndexByCharacter.put(source.charAt(0), 0);
-            for (int i = 1; i < source.length(); i++) {
-                int deleteDistance = table[i - 1][0] + deleteCost;
-                int insertDistance = (i + 1) * deleteCost + insertCost;
-                int matchDistance = i * deleteCost
-                        + (int) getPenelty(source.charAt(i), target.charAt(0));
-                table[i][0] = Math.min(Math.min(deleteDistance, insertDistance),
-                        matchDistance);
-            }
-            for (int j = 1; j < target.length(); j++) {
-                int deleteDistance = (j + 1) * insertCost + deleteCost;
-                int insertDistance = table[0][j - 1] + insertCost;
-                int matchDistance = j * insertCost
-                        + (int) getPenelty(source.charAt(0), target.charAt(j));
-                table[0][j] = Math.min(Math.min(deleteDistance, insertDistance),
-                        matchDistance);
-            }
-            for (int i = 1; i < source.length(); i++) {
-                int maxSourceLetterMatchIndex = source.charAt(i) == target.charAt(0) ? 0
-                        : -1;
-                for (int j = 1; j < target.length(); j++) {
-                    Integer candidateSwapIndex = sourceIndexByCharacter.get(target
-                            .charAt(j));
-                    int jSwap = maxSourceLetterMatchIndex;
-                    int deleteDistance = table[i - 1][j] + deleteCost;
-                    int insertDistance = table[i][j - 1] + insertCost;
-                    int matchDistance = table[i - 1][j - 1];
-                    if (source.charAt(i) != target.charAt(j)) {
-                        matchDistance += (int) getPenelty(source.charAt(i), target.charAt(j));
-                    } else {
-                        maxSourceLetterMatchIndex = j;
-                    }
-                    int swapDistance;
-                    if (candidateSwapIndex != null && jSwap != -1) {
-                        int iSwap = candidateSwapIndex;
-                        int preSwapCost;
-                        if (iSwap == 0 && jSwap == 0) {
-                            preSwapCost = 0;
-                        } else {
-                            preSwapCost = table[Math.max(0, iSwap - 1)][Math.max(0, jSwap - 1)];
-                        }
-                        swapDistance = preSwapCost + (i - iSwap - 1) * deleteCost
-                                + (j - jSwap - 1) * insertCost + swapCost;
-                    } else {
-                        swapDistance = Integer.MAX_VALUE;
-                    }
-                    table[i][j] = Math.min(Math.min(Math
-                            .min(deleteDistance, insertDistance), matchDistance), swapDistance);
-                }
-                sourceIndexByCharacter.put(source.charAt(i), i);
-            }
-            return table[source.length() - 1][target.length() - 1];
         }
     }
 }

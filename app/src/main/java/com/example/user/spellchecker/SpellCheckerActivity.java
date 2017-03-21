@@ -25,11 +25,9 @@ import android.text.TextWatcher;
 
 import com.example.Suggestion;
 
-public class SpellCheckerActivity extends AppCompatActivity implements SpellCheckerSessionListener {
+public class SpellCheckerActivity extends AppCompatActivity {
     private static final String TAG = SpellCheckerActivity.class.getSimpleName();
-    private static final int NOT_A_LENGTH = -1;
-    private TextView mMainView;
-    private SpellCheckerSession mScs;
+
     String[] answer1 = {
             "Marcos",
             "Emery",
@@ -2246,14 +2244,29 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             "Lane"
     };
 
+    String[][] resultList = {
+            result1,
+            result2,
+            result3,
+            result4,
+            result5
+    };
+
+    String[][] answerList = {
+            answer1,
+            answer2,
+            answer3,
+            answer4,
+            answer5
+    };
+
     int index;
 
-    BufferedWriter out;
-
-    Suggestion suggestion;
+    private TextView mMainView;
 
     EditText mTextView;
 
+    Suggestion suggestion;
     List<String> suggestResultList;
 
     /** Called when the activity is first created. */
@@ -2263,6 +2276,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
         setContentView(R.layout.main);
         mMainView = (TextView)findViewById(R.id.main);
         suggestion = new Suggestion();
+        Log.d(TAG, "Create");
         mTextView=(EditText)findViewById(R.id.editText);
         mTextView.addTextChangedListener(new TextWatcher() {
 
@@ -2273,76 +2287,32 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
 
                 int answerCount = 0;
                 try {
-                    index = 0;
-                    for (String item : result1) {
-                        suggestResultList = suggestion.getSuggestion(item);
-                        String suggestResult = suggestResultList.get(0);
-                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                        String answer = answer1[index];
-                        if (!suggestResult.equals(answer)) {
-                            answerCount++;
-                            Log.d(TAG, "1 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                    for (int j = 0; j < 5; j ++) {
+                        index = 0;
+                        for (String item : resultList[j]) {
+                            String answer = answerList[j][index];
+                            index++;
+                            if (index < 20) {
+                                continue;
+                            }
+                            if (answer.length() >= item.length() * 2) {
+                                continue;
+                            }
+                            suggestResultList = suggestion.getSuggestion(item);
+                            String suggestResult = suggestResultList.get(0);
+                            suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
+                            if (!suggestResult.equals(answer)) {
+                                answerCount++;
+                                Log.d(TAG, (j + 1) + " - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
+                            }
                         }
-                        index++;
                     }
-
-                    index = 0;
-                    for (String item : result2) {
-                        suggestResultList = suggestion.getSuggestion(item);
-                        String suggestResult = suggestResultList.get(0);
-                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                        String answer = answer2[index];
-                        if (!suggestResult.equals(answer)) {
-                            answerCount++;
-                            Log.d(TAG, "2 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
-                        }
-                        index++;
-                    }
-
-                    index = 0;
-                    for (String item : result3) {
-                        suggestResultList = suggestion.getSuggestion(item);
-                        String suggestResult = suggestResultList.get(0);
-                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                        String answer = answer3[index];
-                        if (!suggestResult.equals(answer)) {
-                            answerCount++;
-                            Log.d(TAG, "3 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
-                        }
-                        index++;
-                    }
-
-                    index = 0;
-                    for (String item : result4) {
-                        suggestResultList = suggestion.getSuggestion(item);
-                        String suggestResult = suggestResultList.get(0);
-                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                        String answer = answer4[index];
-                        if (!suggestResult.equals(answer)) {
-                            answerCount++;
-                            Log.d(TAG, "4 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
-                        }
-                        index++;
-                    }
-
-                    index = 0;
-                    for (String item : result5) {
-                        suggestResultList = suggestion.getSuggestion(item);
-                        String suggestResult = suggestResultList.get(0);
-                        suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                        String answer = answer5[index];
-                        if (!suggestResult.equals(answer)) {
-                            answerCount++;
-                            Log.d(TAG, "5 - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
-                        }
-                        index++;
-                    }
-
-                    Log.d(TAG, "Total: " + String.valueOf(answerCount));
 
                 } catch (Exception e) {
                     Log.d(TAG, "Error: " + e.toString());
                 }
+
+                Log.d(TAG, "Total: " + String.valueOf(answerCount));
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2363,140 +2333,12 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             }
         });
     }
-    private boolean isSentenceSpellCheckSupported() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-    }
     @Override
     public void onResume() {
         super.onResume();
-        final TextServicesManager tsm = (TextServicesManager) getSystemService(
-                Context.TEXT_SERVICES_MANAGER_SERVICE);
-        mScs = tsm.newSpellCheckerSession(null, Locale.ENGLISH, this, false);
-        if (mScs != null) {
-            // Instantiate TextInfo for each query
-            // TextInfo can be passed a sequence number and a cookie number to identify the resulten
-            if (isSentenceSpellCheckSupported()) {
-                // Note that getSentenceSuggestions works on JB or later.
-                Log.d(TAG, "Sentence spellchecking supported.");
-
-                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("marc's")}, 20);
-                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("pa'p")}, 20);
-                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("de'n")}, 20);
-                //for (String item : result1) {
-                    /*
-                    try {
-                        mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item.substring(item.length()-2) + "'" + ("" + item.charAt(item.length()-1)))}, 20);
-                    } catch (StringIndexOutOfBoundsException e) {
-                    }*/
-                //    mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(item)}, 20);
-                //}
-            } else {
-                // Note that getSuggestions() is a deprecated API.
-                // It is recommended for an application running on Jelly Bean or later
-                // to call getSentenceSuggestions() only.
-                mScs.getSuggestions(new TextInfo("tgis"), 3);
-                mScs.getSuggestions(new TextInfo("hllo"), 3);
-                mScs.getSuggestions(new TextInfo("helloworld"), 3);
-            }
-        } else {
-            Log.e(TAG, "Couldn't obtain the spell checker service.");
-        }
     }
     @Override
     public void onPause() {
         super.onPause();
-        if (out != null) {
-            try {
-                out.close();
-            } catch (IOException e) {
-
-            }
-        }
-        if (mScs != null) {
-            mScs.close();
-        }
-    }
-    private void dumpSuggestionsInfoInternal(
-            final StringBuilder sb, final StringBuilder rankList, final SuggestionsInfo si, final int length, final int offset) {
-        // Returned suggestions are contained in SuggestionsInfo
-        //Log.d(TAG, "Attr: " + String.valueOf(si.getSuggestionsAttributes()));
-        final int len = si.getSuggestionsCount();
-        //Log.d(TAG, "test: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len));
-        //sb.append('\n');
-        //rankList.append("\n");
-        for (int j = 0; j < len; ++j) {
-            if (j != 0) {
-                sb.append(", ");
-            }
-            if (si.getSuggestionAt(j).equals(answer1[index])) {
-                rankList.append(j);
-            }
-            sb.append(si.getSuggestionAt(j));
-        }
-        //sb.append(" (" + len + ")");
-        //if (length != NOT_A_LENGTH) {
-        //    sb.append(" length = " + length + ", offset = " + offset);
-        //}
-        Log.d(TAG,
-                "~ Result: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len) +
-                        " Tag: " + String.valueOf(si.getSuggestionsAttributes()) +
-                        " Rank: " + rankList.toString()
-                );
-    }
-    /**
-     * Callback for {@link SpellCheckerSession#getSuggestions(TextInfo, int)}
-     * and {@link SpellCheckerSession#getSuggestions(TextInfo[], int, boolean)}
-     * These results are suggestions for {@link TextInfo}s queried by
-     * {@link SpellCheckerSession#getSuggestions(TextInfo, int)} or
-     * {@link SpellCheckerSession#getSuggestions(TextInfo[], int, boolean)}
-     */
-    @Override
-    public void onGetSuggestions(final SuggestionsInfo[] arg0) {
-        Log.d(TAG, "onGetSuggestions");
-        final StringBuilder sb = new StringBuilder();
-        final StringBuilder rankList = new StringBuilder();
-
-        for (int i = 0; i < arg0.length; ++i) {
-            dumpSuggestionsInfoInternal(sb, rankList, arg0[i], 0, NOT_A_LENGTH);
-        }
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMainView.append(sb.toString());
-            }
-        });
-    }
-    /**
-     * Callback for {@link SpellCheckerSession#getSentenceSuggestions(TextInfo[], int)}
-     * These results are suggestions for {@link TextInfo}s
-     * queried by {@link SpellCheckerSession#getSentenceSuggestions(TextInfo[], int)}.
-     */
-    @Override
-    public void onGetSentenceSuggestions(final SentenceSuggestionsInfo[] arg0) {
-        if (!isSentenceSpellCheckSupported()) {
-            Log.e(TAG, "Sentence spell check is not supported on this platform, "
-                    + "but accidentially called.");
-            return;
-        }
-        //Log.d(TAG, "onGetSentenceSuggestions");
-
-        final StringBuilder sb = new StringBuilder();
-        final StringBuilder rankList = new StringBuilder();
-
-        for (int i = 0; i < arg0.length; ++i) {
-            final SentenceSuggestionsInfo ssi = arg0[i];
-            for (int j = 0; j < ssi.getSuggestionsCount(); ++j) {
-                dumpSuggestionsInfoInternal(
-                        sb, rankList, ssi.getSuggestionsInfoAt(j), ssi.getOffsetAt(j), ssi.getLengthAt(j));
-            }
-        }
-        index++;
-        Log.d(TAG, "~ Suggetion: " + sb.toString());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mMainView.append(sb.toString());
-            }
-        });
     }
 }
