@@ -20,10 +20,19 @@
             android:layout_width="match_parent"
             android:layout_height="20dp" />
     </LinearLayout>
+
+    <com.example.leesangyoon.wear.KeyboardView
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp" />
+
+    <!--
     <View
         android:id="@+id/keyboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"/>
+        -->
 
 </android.support.wearable.view.BoxInsetLayout>

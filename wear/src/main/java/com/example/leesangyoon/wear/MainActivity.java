@@ -1,5 +1,6 @@
 package com.example.leesangyoon.wear;
 
+import android.os.AsyncTask;
 import android.util.Log;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
@@ -21,7 +22,7 @@ public class MainActivity extends WearableActivity {
 
     private TextView editTextView;
     private TextView suggestView;
-    private View keyboardView;
+    private KeyboardView keyboardView;
 
     List<String> suggestResultList;
     Suggestion suggestion;
@@ -43,7 +44,7 @@ public class MainActivity extends WearableActivity {
 
         editTextView = (TextView) findViewById(R.id.edit);
         suggestView = (TextView) findViewById(R.id.suggest);
-        keyboardView = (View) findViewById(R.id.keyboard);
+        keyboardView = (KeyboardView) findViewById(R.id.keyboard);
 
         suggestion = new Suggestion();
 
@@ -57,13 +58,31 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (keyboardView.getClass() == v.getClass()) {
 
+                        if (testIndex == testInput.length) {
+
+                            testIndex = 0;
+                            inputString = "";
+                            suggestion.suggestionInitilize();
+
+                        } else {
+
+                            inputString += String.valueOf(testInput[testIndex]);
+                            editTextView.setText(inputString);
+
+                            String[] params = {
+                                    String.valueOf(testInput[testIndex])
+                            };
+                            new SuggestionTask().execute(params);
+
+                            testIndex++;
+                        }
+
+                        /*
                         long start = System.currentTimeMillis();
                         suggestResultList = suggestion.getSuggestion(String.valueOf(testInput[testIndex]));
                         long end = System.currentTimeMillis();
                         Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
 
-                        inputString += String.valueOf(testInput[testIndex]);
-                        editTextView.setText(inputString);
                         suggestView.setText(suggestResultList.toString());
                         testIndex++;
                         if (testIndex == testInput.length) {
@@ -71,6 +90,7 @@ public class MainActivity extends WearableActivity {
                             inputString = "";
                             suggestion.suggestionInitilize();
                         }
+                        */
                     }
                 }
 
@@ -106,6 +126,38 @@ public class MainActivity extends WearableActivity {
         } else {
             mContainerView.setBackground(null);
             suggestView.setTextColor(getResources().getColor(android.R.color.black));
+        }
+    }
+
+    public class SuggestionTask extends AsyncTask<String, Void, String> {
+
+        TextView suggestView = (TextView) findViewById(R.id.suggest);
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        protected String doInBackground(String... params) {
+            long start = System.currentTimeMillis();
+            suggestResultList = suggestion.getSuggestion(params[0]);
+            long end = System.currentTimeMillis();
+            Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
+
+            if (params[0].equals(String.valueOf(testInput[testIndex-1]))) {
+                return suggestResultList.toString();
+            }
+
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(final String s) {
+            super.onPostExecute(s);
+
+            if (s.length() > 0) {
+                suggestView.setText(s);
+            }
         }
     }
 }
