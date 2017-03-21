@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.BoxInsetLayout;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.List;
@@ -17,11 +18,20 @@ public class MainActivity extends WearableActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private BoxInsetLayout mContainerView;
-    private TextView mTextView;
 
+    private TextView editTextView;
+    private TextView suggestView;
     private View keyboardView;
+
     List<String> suggestResultList;
     Suggestion suggestion;
+
+    String inputString = "";
+
+    int testIndex;
+    char[] testInput = {
+            'm', 'a', 'r', 'c', 's'
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,10 +40,14 @@ public class MainActivity extends WearableActivity {
         setAmbientEnabled();
 
         mContainerView = (BoxInsetLayout) findViewById(R.id.container);
-        mTextView = (TextView) findViewById(R.id.text);
 
+        editTextView = (TextView) findViewById(R.id.edit);
+        suggestView = (TextView) findViewById(R.id.suggest);
         keyboardView = (View) findViewById(R.id.keyboard);
+
         suggestion = new Suggestion();
+
+        testIndex = 0;
 
         keyboardView.setOnTouchListener(new View.OnTouchListener() {   //터치 이벤트 리스너 등록(누를때와 뗐을때를 구분)
 
@@ -42,20 +56,24 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (keyboardView.getClass() == v.getClass()) {
+
                         long start = System.currentTimeMillis();
-                        suggestResultList = suggestion.getSuggestion("marcs");
+                        suggestResultList = suggestion.getSuggestion(String.valueOf(testInput[testIndex]));
                         long end = System.currentTimeMillis();
                         Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
-                        mTextView.setText(suggestResultList.toString());
+
+                        inputString += String.valueOf(testInput[testIndex]);
+                        editTextView.setText(inputString);
+                        suggestView.setText(suggestResultList.toString());
+                        testIndex++;
+                        if (testIndex == testInput.length) {
+                            testIndex = 0;
+                            inputString = "";
+                            suggestion.suggestionInitilize();
+                        }
                     }
                 }
 
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (keyboardView.getClass() == v.getClass()) {
-                        suggestResultList = suggestion.getSuggestion("pap");
-                        mTextView.setText(suggestResultList.toString());
-                    }
-                }
                 return true;
             }
         });
@@ -84,10 +102,10 @@ public class MainActivity extends WearableActivity {
 
         if (isAmbient()) {
             mContainerView.setBackgroundColor(getResources().getColor(android.R.color.black));
-            mTextView.setTextColor(getResources().getColor(android.R.color.white));
+            suggestView.setTextColor(getResources().getColor(android.R.color.white));
         } else {
             mContainerView.setBackground(null);
-            mTextView.setTextColor(getResources().getColor(android.R.color.black));
+            suggestView.setTextColor(getResources().getColor(android.R.color.black));
         }
     }
 }

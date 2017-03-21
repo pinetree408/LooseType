@@ -2275,7 +2275,11 @@ public class SpellCheckerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mMainView = (TextView)findViewById(R.id.main);
-        suggestion = new Suggestion();
+        try {
+            suggestion = new Suggestion();
+        } catch (Exception e) {
+            Log.d(TAG, "TEST: " + e.toString());
+        }
         Log.d(TAG, "Create");
         mTextView=(EditText)findViewById(R.id.editText);
         mTextView.addTextChangedListener(new TextWatcher() {
@@ -2283,7 +2287,10 @@ public class SpellCheckerActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d(TAG, "Seq = " + s);
-                //suggestResultList = suggestion.getSuggestion(s.toString());
+                //long startTime = System.currentTimeMillis();
+                //suggestResultList = suggestion.getSuggestion(s.toString()));
+                //long endTime = System.currentTimeMillis();
+                //Log.d(TAG, "Excution Time : " + (endTime - startTime) / 1000.0);
 
                 int answerCount = 0;
                 try {
@@ -2298,7 +2305,15 @@ public class SpellCheckerActivity extends AppCompatActivity {
                             if (answer.length() >= item.length() * 2) {
                                 continue;
                             }
-                            suggestResultList = suggestion.getSuggestion(item);
+                            for (int k = 0; k < item.length(); k++) {
+                                if (k == (item.length() - 1)) {
+                                    suggestResultList = suggestion.getSuggestion(String.valueOf(item.charAt(k)));
+                                } else {
+                                    suggestion.getSuggestion(String.valueOf(item.charAt(k)));
+                                }
+                            }
+                            suggestion.suggestionInitilize();
+                            //suggestResultList = suggestion.getSuggestion(item);
                             String suggestResult = suggestResultList.get(0);
                             suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
                             if (!suggestResult.equals(answer)) {
@@ -2313,6 +2328,7 @@ public class SpellCheckerActivity extends AppCompatActivity {
                 }
 
                 Log.d(TAG, "Total: " + String.valueOf(answerCount));
+
 
                 runOnUiThread(new Runnable() {
                     @Override

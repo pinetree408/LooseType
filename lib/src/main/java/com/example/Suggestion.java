@@ -1,5 +1,7 @@
 package com.example;
 
+import java.lang.reflect.Array;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -756,20 +758,51 @@ public class Suggestion {
             "evie"
     };
 
-    LevenshteinDistance lsd;
+    char[] line1 = {
+            'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'
+    };
+    char[] line2 = {
+            'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'
+    };
+    char[] line3 = {
+            'z', 'x', 'c', 'v', 'b', 'n', 'm'
+    };
+
+    HashMap<Character, Double> keyboardPositionX;
+    HashMap<Character, Double> keyboardPositionY;
+
+    HashMap<String, List<List<Double>>> suggestionMap;
+    int inputIndex;
+
+    double insertionCost = 1.0;
+    double deletionCost = 1.0;
+    double equalCost = -0.2;
+    double substitutionXCost = 1.0;
+    double substitutionYCost = 1.0;
 
     public Suggestion() {
-        lsd = new LevenshteinDistance();
+
+        keyboardPositionX = new HashMap<>();
+        keyboardPositionXInitilize(keyboardPositionX);
+        keyboardPositionY = new HashMap<>();
+        keyboardPositionYInitilize(keyboardPositionY);
+
+        substitutionXCost = Math.pow(substitutionXCost, 2);
+        substitutionYCost = Math.pow(substitutionYCost, 2);
+
+        suggestionInitilize();
     }
 
     public List<String> getSuggestion(String input) {
+
+        inputIndex++;
 
         List<String> suggetedResult = new ArrayList<String>();
 
         double minDist = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < dictionary.length; i++) {
-            double computedDist = lsd.computeLevenshteinDistance(dictionary[i], input);
+            double computedDist = computeLevenshteinDistanceChar(dictionary[i], input);
             if (computedDist < minDist) {
                 minDist = computedDist;
                 suggetedResult.clear();
@@ -782,117 +815,108 @@ public class Suggestion {
         return suggetedResult;
     }
 
-    public double getDistance(CharSequence lhs, CharSequence rhs) {
-        double dist = lsd.computeLevenshteinDistance(lhs, rhs);
-        return dist;
+    public void suggestionInitilize() {
+
+        inputIndex = 0;
+
+        suggestionMap = new HashMap<>();
+        for (String item : dictionary) {
+            int itemLength = item.length();
+            List<List<Double>> source = new ArrayList<List<Double>>(itemLength+1);
+            for (int i = 0; i <= itemLength; i++) {
+                List<Double> target = new ArrayList<Double>();
+                target.add((double) i);
+                source.add(target);
+            }
+            suggestionMap.put(item, source);
+        }
+
     }
 
-    public double getPositionX(char a) {
-        double position = lsd.getPositionX(a);
-        return position;
+    public double computeLevenshteinDistanceString(CharSequence lhs, CharSequence rhs) {
+
+        int lhsLength = lhs.length();
+        int rhsLength = rhs.length();
+
+        double[][] distance = new double[lhsLength + 1][rhsLength + 1];
+
+        for (int i = 0; i <= lhsLength; i++)
+            distance[i][0] = i;
+        for (int j = 1; j <= rhsLength; j++)
+            distance[0][j] = j;
+
+        for (int i = 1; i <= lhsLength; i++) {
+            for (int j = 1; j <= rhsLength; j++) {
+                distance[i][j] = minimum(
+                        distance[i - 1][j] + deletionCost, // deletion
+                        distance[i][j - 1] + insertionCost, // insertion
+                        distance[i - 1][j - 1] + getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1))); // substitution
+            }
+        }
+
+        return distance[lhsLength][rhsLength];
     }
 
-    public double getPositionY(char a) {
-        double position = lsd.getPositionY(a);
-        return position;
+    public double computeLevenshteinDistanceChar(CharSequence lhs, CharSequence rhs) {
+
+        int lhsLength = lhs.length();
+
+        suggestionMap.get(lhs).get(0).add((double) inputIndex);
+
+        for (int i = 1; i <= lhsLength; i++) {
+            suggestionMap.get(lhs).get(i).add(inputIndex, minimum(
+                    suggestionMap.get(lhs).get(i-1).get(inputIndex) + deletionCost, // deletion
+                    suggestionMap.get(lhs).get(i).get(inputIndex-1) + insertionCost, // insertion
+                    suggestionMap.get(lhs).get(i-1).get(inputIndex-1) + getPenelty(lhs.charAt(i - 1), rhs.charAt(0)))); // substitution
+        }
+
+        return suggestionMap.get(lhs).get(lhsLength).get(inputIndex);
     }
 
-    public double getPlenty(char a, char b) {
-        double distX = getPositionX(a) - getPositionX(b);
-        double distY = getPositionY(a) - getPositionY(b);
+    public double getPenelty(char a, char b) {
+        if(a == b) {
+            return equalCost;
+        }
 
-        double ret = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
+        double distX = keyboardPositionX.get(a) - keyboardPositionX.get(b);
+        double distY = keyboardPositionY.get(a) - keyboardPositionY.get(b);
 
-        ret = Math.round(ret);
+        double ret = Math.sqrt(
+                (substitutionXCost * Math.pow(distX, 2)) +
+                        (substitutionYCost * Math.pow(distY, 2)));
 
         return ret;
     }
 
-    public class LevenshteinDistance {
-
-        String line1 = "qwertyuiop", line2 = "asdfghjkl", line3 = "zxcvbnm";
-
-        double substitutionCost;
-        double deletionCost = 1.0;
-        double insertionCost = 1.0;
-
-        private double minimum(double a, double b, double c) {
-            return Math.min(Math.min(a, b), c);
+    private void keyboardPositionXInitilize(HashMap<Character, Double> keyboardPositionX) {
+        for (char key : line1) {
+            keyboardPositionX.put(key, 0.0 + String.valueOf(line1).indexOf(key));
         }
-
-        public double computeLevenshteinDistance(CharSequence lhs, CharSequence rhs) {
-
-            int lhsLength = lhs.length();
-            int rhsLength = rhs.length();
-
-            double[][] distance = new double[lhsLength + 1][rhsLength + 1];
-
-            for (int i = 0; i <= lhsLength; i++)
-                distance[i][0] = i;
-            for (int j = 1; j <= rhsLength; j++)
-                distance[0][j] = j;
-
-            for (int i = 1; i <= lhsLength; i++) {
-                for (int j = 1; j <= rhsLength; j++) {
-                    //substitutionCost = lhs.charAt(i - 1) == rhs.charAt(j - 1) ? 0.0 : 1.0;
-                    substitutionCost = getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1));
-                    distance[i][j] = minimum(
-                            distance[i - 1][j] + deletionCost, // deletion
-                            distance[i][j - 1] + insertionCost, // insertion
-                            distance[i - 1][j - 1] + substitutionCost); // substitution
-                }
-            }
-
-            return distance[lhsLength][rhsLength];
+        for (char key : line2) {
+            keyboardPositionX.put(key, 0.5 + String.valueOf(line2).indexOf(key));
         }
-
-        public double getPositionX(char a) {
-
-            double positionX = 0.0;
-            if (line1.indexOf(a) != -1) {
-                positionX = line1.indexOf(a);
-            } else {
-                if (line2.indexOf(a) != -1) {
-                    positionX = line2.indexOf(a) + 0.5;
-                } else {
-                    if (line3.indexOf(a) != -1) {
-                        positionX = line3.indexOf(a) + 1.5;
-                    }
-                }
-            }
-
-            return positionX;
-        }
-
-        public double getPositionY(char a) {
-
-            double positionY = 0.0;
-
-            if (line1.indexOf(a) != -1) {
-                positionY = 0.0;
-            } else {
-                if (line2.indexOf(a) != -1) {
-                    positionY = Math.sqrt(1 - Math.pow(0.5, 2));
-                } else {
-                    if (line3.indexOf(a) != -1) {
-                        positionY = 2 * Math.sqrt(1 - Math.pow(0.5, 2));
-                    }
-                }
-            }
-
-            return positionY;
-        }
-
-        public double getPenelty(char a, char b) {
-            if(a==b)
-                return -0.2;
-
-            double distX = getPositionX(a) - getPositionX(b);
-            double distY = getPositionY(a) - getPositionY(b);
-
-            double ret = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
-
-            return ret;
+        for (char key : line3) {
+            keyboardPositionX.put(key, 1.5 + String.valueOf(line3).indexOf(key));
         }
     }
+
+    private void keyboardPositionYInitilize(HashMap<Character, Double> keyboardPositionY) {
+
+        double height = Math.sqrt(1 - Math.pow(0.5, 2));
+
+        for (char key : line1) {
+            keyboardPositionY.put(key, 0.0);
+        }
+        for (char key : line2) {
+            keyboardPositionY.put(key, height);
+        }
+        for (char key : line3) {
+            keyboardPositionY.put(key, 2 * height);
+        }
+    }
+
+    private double minimum(double a, double b, double c) {
+        return Math.min(Math.min(a, b), c);
+    }
+
 }
