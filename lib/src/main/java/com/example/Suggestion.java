@@ -764,24 +764,17 @@ public class Suggestion {
 
     public List<String> getSuggestion(String input) {
 
-        List<Double> distList = new ArrayList<Double>();
+        List<String> suggetedResult = new ArrayList<String>();
 
         double minDist = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < dictionary.length; i++) {
             double computedDist = lsd.computeLevenshteinDistance(dictionary[i], input);
-            distList.add(computedDist);
             if (computedDist < minDist) {
                 minDist = computedDist;
-            }
-        }
-
-        List<String> suggetedResult = new ArrayList<String>();
-
-        for (int i = 0; i < distList.size(); i++) {
-            double newNumber = distList.get(i);
-            boolean isMin = newNumber == minDist;
-            if (isMin) {
+                suggetedResult.clear();
+                suggetedResult.add(dictionary[i]);
+            } else if (computedDist == minDist) {
                 suggetedResult.add(dictionary[i]);
             }
         }
