@@ -833,6 +833,10 @@ public class Suggestion {
 
     }
 
+    public String[] getDictionary() {
+        return dictionary;
+    }
+
     public double computeLevenshteinDistanceString(CharSequence lhs, CharSequence rhs) {
 
         int lhsLength = lhs.length();

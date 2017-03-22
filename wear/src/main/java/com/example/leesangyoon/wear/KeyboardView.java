@@ -3,10 +3,7 @@ package com.example.leesangyoon.wear;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -15,11 +12,13 @@ import android.view.View;
  */
 public class KeyboardView extends View {
 
-    private String mExampleString = "test";
+    char[][] keyboardChar = {
+            {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'},
+            {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'},
+            {'z', 'x', 'c', 'v', 'b', 'n', 'm'}
+    };
 
-    private TextPaint mTextPaint;
-    private float mTextWidth;
-    private float mTextHeight;
+    Paint keyboardPaint;
 
     public KeyboardView(Context context) {
         super(context);
@@ -43,42 +42,44 @@ public class KeyboardView extends View {
 
         a.recycle();
 
-        // Set up a default TextPaint object
-        mTextPaint = new TextPaint();
-        mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextAlign(Paint.Align.LEFT);
-
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
-    }
-
-    private void invalidateTextPaintAndMeasurements() {
-        mTextWidth = mTextPaint.measureText("test");
-
-        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-        mTextHeight = fontMetrics.bottom;
-
+        keyboardPaint = new Paint();
+        keyboardPaint.setAntiAlias(true);
+        keyboardPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // TODO: consider storing these as member variables to reduce
-        // allocations per draw cycle.
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
+        double viewWidth = getWidth();
+        double viewHeight = getHeight();
 
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
+        double keyWidth = (viewWidth / 11);
+        double keyHeight = viewHeight / 4;
 
-        // Draw the text.
-        canvas.drawText(mExampleString,
-                paddingLeft + (contentWidth - mTextWidth) / 2,
-                paddingTop + (contentHeight + mTextHeight) / 2,
-                mTextPaint);
+        double keyboardPaddingLeft = (viewWidth - (10 * keyWidth)) * 0.5;
+        double keyboardPaddingTop = (viewHeight - (3 * keyHeight)) * 0.5;
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (j < keyboardChar[i].length) {
+                    String content = String.valueOf(keyboardChar[i][j]);
+
+                    float leftPadding = (float) (keyboardPaddingLeft + j * keyWidth + (keyWidth * 0.5));
+                    float topPadding = (float) (keyboardPaddingTop + i * keyHeight + (keyHeight * 0.5));
+                    if (i == 1) {
+                        leftPadding += keyWidth * 0.5;
+                    } else if (i == 2) {
+                        leftPadding += keyWidth * 1.5;
+                    }
+
+                    canvas.drawText(content,
+                            leftPadding,
+                            topPadding,
+                            keyboardPaint);
+                }
+            }
+        }
 
     }
 

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.StringBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,8 +26,11 @@ import android.text.TextWatcher;
 
 import com.example.Suggestion;
 
-public class SpellCheckerActivity extends AppCompatActivity {
+public class SpellCheckerActivity extends AppCompatActivity implements SpellCheckerSessionListener {
     private static final String TAG = SpellCheckerActivity.class.getSimpleName();
+
+    private SpellCheckerSession mScs;
+    private static final int NOT_A_LENGTH = -1;
 
     String[] answer1 = {
             "Marcos",
@@ -2269,6 +2273,8 @@ public class SpellCheckerActivity extends AppCompatActivity {
     Suggestion suggestion;
     List<String> suggestResultList;
 
+    int count;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -2278,9 +2284,9 @@ public class SpellCheckerActivity extends AppCompatActivity {
         try {
             suggestion = new Suggestion();
         } catch (Exception e) {
-            Log.d(TAG, "TEST: " + e.toString());
+            Log.d(TAG, "Initialize Exception: " + e.toString());
         }
-        Log.d(TAG, "Create");
+
         mTextView=(EditText)findViewById(R.id.editText);
         mTextView.addTextChangedListener(new TextWatcher() {
 
@@ -2291,7 +2297,7 @@ public class SpellCheckerActivity extends AppCompatActivity {
                 //suggestResultList = suggestion.getSuggestion(s.toString()));
                 //long endTime = System.currentTimeMillis();
                 //Log.d(TAG, "Excution Time : " + (endTime - startTime) / 1000.0);
-
+                /*
                 int answerCount = 0;
                 try {
                     for (int j = 0; j < 5; j ++) {
@@ -2323,12 +2329,13 @@ public class SpellCheckerActivity extends AppCompatActivity {
                         }
                     }
 
+
                 } catch (Exception e) {
                     Log.d(TAG, "Error: " + e.toString());
                 }
 
                 Log.d(TAG, "Total: " + String.valueOf(answerCount));
-
+                */
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2349,12 +2356,131 @@ public class SpellCheckerActivity extends AppCompatActivity {
             }
         });
     }
+    private boolean isSentenceSpellCheckSupported() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+    }
     @Override
     public void onResume() {
         super.onResume();
+        final TextServicesManager tsm = (TextServicesManager) getSystemService(
+                Context.TEXT_SERVICES_MANAGER_SERVICE);
+        mScs = tsm.newSpellCheckerSession(null, null, this, true);
+        if (mScs != null) {
+            // Instantiate TextInfo for each query
+            // TextInfo can be passed a sequence number and a cookie number to identify the resulten
+            if (isSentenceSpellCheckSupported()) {
+                // Note that getSentenceSuggestions works on JB or later.
+                Log.d(TAG, "Sentence spellchecking supported.");
+                index = 0;
+                //mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo("marco")}, 20);
+                for (int k = 0; k < 300; k++) {
+                    //String item = suggestion.getDictionary()[k];
+                    String item = "francisco";
+                    String sub = "";
+                    count = 1;
+                    for (int i = 0; i<item.length(); i++) {
+                        sub += String.valueOf(item.charAt(i));
+                        mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(sub)}, 12);
+                    }
+                    break;
+                }
+            }
+        } else {
+            Log.e(TAG, "Couldn't obtain the spell checker service.");
+        }
+
     }
     @Override
     public void onPause() {
         super.onPause();
+        if (mScs != null) {
+            mScs.close();
+        }
+    }
+
+    private void dumpSuggestionsInfoInternal(
+            final StringBuilder sb, final StringBuilder rankList, final SuggestionsInfo si, final int length, final int offset) {
+        // Returned suggestions are contained in SuggestionsInfo
+        final int len = si.getSuggestionsCount();
+        //Log.d(TAG, "test: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len));
+        sb.append('\n');
+        for (int j = 0; j < len; ++j) {
+            if (j != 0) {
+                sb.append(", ");
+            }
+            if (j == 0) {
+                //if (si.getSuggestionAt(j).toLowerCase().equals(suggestion.getDictionary()[index])) {
+                if (si.getSuggestionAt(j).toLowerCase().equals("francisco")) {
+                    rankList.append(count);
+                }
+            } else {
+                if (si.getSuggestionAt(j).toLowerCase().equals("francisco")) {
+                    rankList.append(count);
+                }
+            }
+            sb.append(si.getSuggestionAt(j));
+        }
+        //if (count == suggestion.getDictionary()[index].length()) {
+        if (count == "francisco".length()) {
+            Log.d(TAG, "Simul: " + "francisco" + " Result: " + rankList.toString());
+            count = 1;
+            index++;
+        } else {
+            count++;
+        }
+    }
+    /**
+     * Callback for {@link SpellCheckerSession#getSuggestions(TextInfo, int)}
+     * and {@link SpellCheckerSession#getSuggestions(TextInfo[], int, boolean)}
+     * These results are suggestions for {@link TextInfo}s queried by
+     * {@link SpellCheckerSession#getSuggestions(TextInfo, int)} or
+     * {@link SpellCheckerSession#getSuggestions(TextInfo[], int, boolean)}
+     */
+    @Override
+    public void onGetSuggestions(final SuggestionsInfo[] arg0) {
+        Log.d(TAG, "onGetSuggestions");
+        final StringBuilder sb = new StringBuilder();
+        final StringBuilder rankList = new StringBuilder();
+
+        for (int i = 0; i < arg0.length; ++i) {
+            dumpSuggestionsInfoInternal(sb, rankList, arg0[i], 0, NOT_A_LENGTH);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMainView.append(sb.toString());
+            }
+        });
+    }
+    /**
+     * Callback for {@link SpellCheckerSession#getSentenceSuggestions(TextInfo[], int)}
+     * These results are suggestions for {@link TextInfo}s
+     * queried by {@link SpellCheckerSession#getSentenceSuggestions(TextInfo[], int)}.
+     */
+    @Override
+    public void onGetSentenceSuggestions(final SentenceSuggestionsInfo[] arg0) {
+        if (!isSentenceSpellCheckSupported()) {
+            Log.e(TAG, "Sentence spell check is not supported on this platform, "
+                    + "but accidentially called.");
+            return;
+        }
+        //Log.d(TAG, "onGetSentenceSuggestions");
+        //Log.d(TAG, "Index: " + String.valueOf(index));
+        final StringBuilder sb = new StringBuilder();
+        final StringBuilder rankList = new StringBuilder();
+
+        for (int i = 0; i < arg0.length; ++i) {
+            final SentenceSuggestionsInfo ssi = arg0[i];
+            for (int j = 0; j < ssi.getSuggestionsCount(); ++j) {
+                dumpSuggestionsInfoInternal(
+                        sb, rankList, ssi.getSuggestionsInfoAt(j), ssi.getOffsetAt(j), ssi.getLengthAt(j));
+            }
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMainView.append(sb.toString());
+            }
+        });
     }
 }

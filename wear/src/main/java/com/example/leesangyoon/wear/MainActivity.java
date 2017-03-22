@@ -76,21 +76,6 @@ public class MainActivity extends WearableActivity {
 
                             testIndex++;
                         }
-
-                        /*
-                        long start = System.currentTimeMillis();
-                        suggestResultList = suggestion.getSuggestion(String.valueOf(testInput[testIndex]));
-                        long end = System.currentTimeMillis();
-                        Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
-
-                        suggestView.setText(suggestResultList.toString());
-                        testIndex++;
-                        if (testIndex == testInput.length) {
-                            testIndex = 0;
-                            inputString = "";
-                            suggestion.suggestionInitilize();
-                        }
-                        */
                     }
                 }
 
