@@ -50,14 +50,48 @@ public class MainActivity extends WearableActivity {
 
         testIndex = 0;
 
-        keyboardView.setOnTouchListener(new View.OnTouchListener() {   //터치 이벤트 리스너 등록(누를때와 뗐을때를 구분)
+        suggestView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (suggestView.getClass() == v.getClass()) {
+                        testIndex = 0;
+                        inputString = "";
+                        suggestion.suggestionInitilize();
+                        editTextView.setText(inputString);
+                        suggestView.setText("");
+                    }
+                }
+
+                return true;
+            }
+
+        });
+
+        keyboardView.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (keyboardView.getClass() == v.getClass()) {
+                        double tempX = (double) event.getAxisValue(MotionEvent.AXIS_X);
+                        double tempY = (double) event.getAxisValue(MotionEvent.AXIS_Y);
 
+                        String input = keyboardView.getKey(tempX, tempY);
+                        inputString += input;
+
+                        editTextView.setText(inputString);
+
+                        String[] params = {
+                                String.valueOf(input),
+                                String.valueOf(tempX),
+                                String.valueOf(tempY)
+                        };
+                        new SuggestionTask().execute(params);
+
+                        /*
                         if (testIndex == testInput.length) {
 
                             testIndex = 0;
@@ -76,6 +110,7 @@ public class MainActivity extends WearableActivity {
 
                             testIndex++;
                         }
+                        */
                     }
                 }
 
@@ -125,11 +160,12 @@ public class MainActivity extends WearableActivity {
 
         protected String doInBackground(String... params) {
             long start = System.currentTimeMillis();
-            suggestResultList = suggestion.getSuggestion(params[0]);
+            suggestResultList = suggestion.getSuggestion(params[0],
+                    Double.parseDouble(params[1]), Double.parseDouble(params[2]));
             long end = System.currentTimeMillis();
             Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
 
-            if (params[0].equals(String.valueOf(testInput[testIndex-1]))) {
+            if (params[0].equals(String.valueOf(inputString.charAt(inputString.length()-1)))) {
                 return suggestResultList.toString();
             }
 

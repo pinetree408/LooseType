@@ -793,7 +793,7 @@ public class Suggestion {
         suggestionInitilize();
     }
 
-    public List<String> getSuggestion(String input) {
+    public List<String> getSuggestion(String input, double x, double y) {
 
         inputIndex++;
 
@@ -802,7 +802,7 @@ public class Suggestion {
         double minDist = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < dictionary.length; i++) {
-            double computedDist = computeLevenshteinDistanceChar(dictionary[i], input);
+            double computedDist = computeLevenshteinDistanceChar(dictionary[i], input, x, y);
             if (computedDist < minDist) {
                 minDist = computedDist;
                 suggetedResult.clear();
@@ -837,7 +837,7 @@ public class Suggestion {
         return dictionary;
     }
 
-    public double computeLevenshteinDistanceString(CharSequence lhs, CharSequence rhs) {
+    public double computeLevenshteinDistanceString(CharSequence lhs, CharSequence rhs, double x, double y) {
 
         int lhsLength = lhs.length();
         int rhsLength = rhs.length();
@@ -854,14 +854,14 @@ public class Suggestion {
                 distance[i][j] = minimum(
                         distance[i - 1][j] + deletionCost, // deletion
                         distance[i][j - 1] + insertionCost, // insertion
-                        distance[i - 1][j - 1] + getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1))); // substitution
+                        distance[i - 1][j - 1] + getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1), x, y)); // substitution
             }
         }
 
         return distance[lhsLength][rhsLength];
     }
 
-    public double computeLevenshteinDistanceChar(CharSequence lhs, CharSequence rhs) {
+    public double computeLevenshteinDistanceChar(CharSequence lhs, CharSequence rhs, double x, double y) {
 
         int lhsLength = lhs.length();
 
@@ -871,19 +871,19 @@ public class Suggestion {
             suggestionMap.get(lhs).get(i).add(inputIndex, minimum(
                     suggestionMap.get(lhs).get(i-1).get(inputIndex) + deletionCost, // deletion
                     suggestionMap.get(lhs).get(i).get(inputIndex-1) + insertionCost, // insertion
-                    suggestionMap.get(lhs).get(i-1).get(inputIndex-1) + getPenelty(lhs.charAt(i - 1), rhs.charAt(0)))); // substitution
+                    suggestionMap.get(lhs).get(i-1).get(inputIndex-1) + getPenelty(lhs.charAt(i - 1), rhs.charAt(0), x, y))); // substitution
         }
 
         return suggestionMap.get(lhs).get(lhsLength).get(inputIndex);
     }
 
-    public double getPenelty(char a, char b) {
+    public double getPenelty(char a, char b, double x, double y) {
         if(a == b) {
             return equalCost;
         }
 
-        double distX = keyboardPositionX.get(a) - keyboardPositionX.get(b);
-        double distY = keyboardPositionY.get(a) - keyboardPositionY.get(b);
+        double distX = keyboardPositionX.get(a) - x;
+        double distY = keyboardPositionY.get(a) - y;
 
         double ret = Math.sqrt(
                 (substitutionXCost * Math.pow(distX, 2)) +

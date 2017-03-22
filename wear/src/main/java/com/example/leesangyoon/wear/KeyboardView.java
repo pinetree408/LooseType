@@ -7,16 +7,30 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * TODO: document your custom view class.
  */
 public class KeyboardView extends View {
+
+    char[] keyboardCharList = {
+            'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+            'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
+            'z', 'x', 'c', 'v', 'b', 'n', 'm'
+    };
 
     char[][] keyboardChar = {
             {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'},
             {'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'},
             {'z', 'x', 'c', 'v', 'b', 'n', 'm'}
     };
+
+    List<String> keyboardCharPos;
+    double keyWidthRef;
+    double keyHeightRef;
 
     Paint keyboardPaint;
 
@@ -35,6 +49,26 @@ public class KeyboardView extends View {
         init(attrs, defStyle);
     }
 
+    public String getKey(double x, double y) {
+        int id = -1;
+
+        for (int i = 0; i < keyboardCharPos.size(); i++) {
+            String pos = keyboardCharPos.get(i);
+            double posX = Double.parseDouble(pos.split("-")[0]);
+            double posY = Double.parseDouble(pos.split("-")[1]);
+            if ((Math.abs(posX - x) < keyWidthRef) && (Math.abs(posY - y) < keyHeightRef)) {
+                id = i;
+                break;
+            }
+        }
+
+        if (id == -1) {
+            return ".";
+        }
+
+        return String.valueOf(keyboardCharList[id]);
+    }
+
     private void init(AttributeSet attrs, int defStyle) {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
@@ -44,7 +78,13 @@ public class KeyboardView extends View {
 
         keyboardPaint = new Paint();
         keyboardPaint.setAntiAlias(true);
+        keyboardPaint.setTextSize(25);
         keyboardPaint.setTextAlign(Paint.Align.CENTER);
+        keyboardPaint.setFakeBoldText(true);
+
+        keyboardCharPos = new ArrayList<String>();
+        keyHeightRef = -1.0;
+        keyWidthRef = -1.0;
     }
 
     @Override
@@ -54,8 +94,15 @@ public class KeyboardView extends View {
         double viewWidth = getWidth();
         double viewHeight = getHeight();
 
-        double keyWidth = (viewWidth / 11);
+        double keyWidth = viewWidth / 10.5;
         double keyHeight = viewHeight / 4;
+
+        if (keyWidthRef == -1.0) {
+            keyWidthRef = keyWidth * 0.5;
+        }
+        if (keyHeightRef == -1.0) {
+            keyHeightRef = keyHeight * 0.5;
+        }
 
         double keyboardPaddingLeft = (viewWidth - (10 * keyWidth)) * 0.5;
         double keyboardPaddingTop = (viewHeight - (3 * keyHeight)) * 0.5;
@@ -73,6 +120,10 @@ public class KeyboardView extends View {
                         leftPadding += keyWidth * 1.5;
                     }
 
+                    if (keyboardCharPos.size() != 26) {
+                        keyboardCharPos.add(leftPadding + "-" + topPadding);
+                    }
+
                     canvas.drawText(content,
                             leftPadding,
                             topPadding,
@@ -82,6 +133,5 @@ public class KeyboardView extends View {
         }
 
     }
-
 
 }
