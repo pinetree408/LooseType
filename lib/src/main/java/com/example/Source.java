@@ -6,7 +6,7 @@ package com.example;
 
 public class Source {
 
-    static String[] dictionary = {
+    public static String[] dictionary = {
             "noah",
             "liam",
             "mason",

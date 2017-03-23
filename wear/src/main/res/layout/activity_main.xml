@@ -8,31 +8,44 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:orientation="vertical"
-        app:layout_box="all">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <TextView
-            android:id="@+id/edit"
+            android:id="@+id/reset"
+            android:layout_width="match_parent"
+            android:layout_height="30dp" />
+
+        <TextView
+            android:id="@+id/target"
             android:layout_width="match_parent"
             android:layout_height="20dp" />
-        <TextView
-            android:id="@+id/suggest"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="20dp" />
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:id="@+id/suggest1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/suggest2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <com.example.leesangyoon.wear.KeyboardView
+            android:id="@+id/keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
-
-    <com.example.leesangyoon.wear.KeyboardView
-        android:id="@+id/keyboard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="75dp" />
-
-    <!--
-    <View
-        android:id="@+id/keyboard"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"/>
-        -->
 
 </android.support.wearable.view.BoxInsetLayout>
