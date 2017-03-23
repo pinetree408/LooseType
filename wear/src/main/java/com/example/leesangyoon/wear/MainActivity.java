@@ -29,11 +29,6 @@ public class MainActivity extends WearableActivity {
 
     String inputString = "";
 
-    int testIndex;
-    char[] testInput = {
-            'm', 'a', 'r', 'c', 's'
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,17 +43,14 @@ public class MainActivity extends WearableActivity {
 
         suggestion = new Suggestion();
 
-        testIndex = 0;
-
         suggestView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestView.getClass() == v.getClass()) {
-                        testIndex = 0;
                         inputString = "";
-                        suggestion.suggestionInitilize();
+                        suggestion.initialize();
                         editTextView.setText(inputString);
                         suggestView.setText("");
                     }
@@ -103,30 +95,16 @@ public class MainActivity extends WearableActivity {
     @Override
     public void onEnterAmbient(Bundle ambientDetails) {
         super.onEnterAmbient(ambientDetails);
-        updateDisplay();
     }
 
     @Override
     public void onUpdateAmbient() {
         super.onUpdateAmbient();
-        updateDisplay();
     }
 
     @Override
     public void onExitAmbient() {
-        updateDisplay();
         super.onExitAmbient();
-    }
-
-    private void updateDisplay() {
-
-        if (isAmbient()) {
-            mContainerView.setBackgroundColor(getResources().getColor(android.R.color.black));
-            suggestView.setTextColor(getResources().getColor(android.R.color.white));
-        } else {
-            mContainerView.setBackground(null);
-            suggestView.setTextColor(getResources().getColor(android.R.color.black));
-        }
     }
 
     public class SuggestionTask extends AsyncTask<String, Void, String> {

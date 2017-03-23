@@ -1,796 +1,53 @@
 package com.example;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
 public class Suggestion {
 
-    String[] dictionary = {
-            "noah",
-            "liam",
-            "mason",
-            "jacob",
-            "william",
-            "ethan",
-            "james",
-            "alexander",
-            "michael",
-            "benjamin",
-            "elijah",
-            "daniel",
-            "logan",
-            "matthew",
-            "lucas",
-            "jackson",
-            "david",
-            "oliver",
-            "joseph",
-            "gabriel",
-            "samuel",
-            "carter",
-            "anthony",
-            "john",
-            "dylan",
-            "luke",
-            "henry",
-            "andrew",
-            "isaac",
-            "christopher",
-            "joshua",
-            "wyatt",
-            "sebastian",
-            "owen",
-            "caleb",
-            "nathan",
-            "ryan",
-            "jack",
-            "hunter",
-            "levi",
-            "christian",
-            "julian",
-            "landon",
-            "grayson",
-            "jonathan",
-            "isaiah",
-            "charles",
-            "thomas",
-            "aaron",
-            "connor",
-            "jeremiah",
-            "cameron",
-            "josiah",
-            "adrian",
-            "jordan",
-            "nicholas",
-            "robert",
-            "angel",
-            "hudson",
-            "lincoln",
-            "evan",
-            "dominic",
-            "austin",
-            "gavin",
-            "nolan",
-            "parker",
-            "adam",
-            "chase",
-            "cooper",
-            "kevin",
-            "jose",
-            "tyler",
-            "brandon",
-            "asher",
-            "mateo",
-            "jason",
-            "zachary",
-            "carson",
-            "xavier",
-            "leo",
-            "ezra",
-            "bentley",
-            "sawyer",
-            "blake",
-            "nathaniel",
-            "ryder",
-            "theodore",
-            "elias",
-            "tristan",
-            "roman",
-            "leonardo",
-            "camden",
-            "brody",
-            "luis",
-            "miles",
-            "micah",
-            "vincent",
-            "justin",
-            "maxwell",
-            "juan",
-            "cole",
-            "damian",
-            "carlos",
-            "max",
-            "harrison",
-            "weston",
-            "brantley",
-            "axel",
-            "diego",
-            "abel",
-            "wesley",
-            "santiago",
-            "jesus",
-            "silas",
-            "giovanni",
-            "bryce",
-            "alex",
-            "everett",
-            "george",
-            "eric",
-            "ivan",
-            "emmett",
-            "ashton",
-            "kingston",
-            "jonah",
-            "jameson",
-            "kai",
-            "maddox",
-            "timothy",
-            "ezekiel",
-            "emmanuel",
-            "hayden",
-            "antonio",
-            "bennett",
-            "steven",
-            "richard",
-            "jude",
-            "luca",
-            "edward",
-            "joel",
-            "victor",
-            "miguel",
-            "malachi",
-            "king",
-            "patrick",
-            "kaleb",
-            "bryan",
-            "alan",
-            "marcus",
-            "preston",
-            "abraham",
-            "calvin",
-            "colin",
-            "bradley",
-            "jeremy",
-            "kyle",
-            "graham",
-            "grant",
-            "jesse",
-            "alejandro",
-            "oscar",
-            "aidan",
-            "tucker",
-            "avery",
-            "brian",
-            "matteo",
-            "riley",
-            "august",
-            "mark",
-            "brady",
-            "kenneth",
-            "paul",
-            "nicolas",
-            "beau",
-            "dean",
-            "jake",
-            "peter",
-            "elliot",
-            "finn",
-            "derek",
-            "sean",
-            "elliott",
-            "jasper",
-            "lorenzo",
-            "omar",
-            "beckett",
-            "rowan",
-            "gael",
-            "corbin",
-            "waylon",
-            "myles",
-            "tanner",
-            "jorge",
-            "javier",
-            "zion",
-            "andres",
-            "charlie",
-            "paxton",
-            "brooks",
-            "zane",
-            "simon",
-            "judah",
-            "griffin",
-            "cody",
-            "gunner",
-            "dawson",
-            "israel",
-            "gage",
-            "messiah",
-            "stephen",
-            "francisco",
-            "clayton",
-            "chance",
-            "eduardo",
-            "spencer",
-            "lukas",
-            "damien",
-            "dallas",
-            "conner",
-            "travis",
-            "knox",
-            "raymond",
-            "peyton",
-            "devin",
-            "felix",
-            "cash",
-            "fernando",
-            "keegan",
-            "garrett",
-            "rhett",
-            "ricardo",
-            "martin",
-            "reid",
-            "seth",
-            "andre",
-            "cesar",
-            "titus",
-            "donovan",
-            "manuel",
-            "mario",
-            "milo",
-            "archer",
-            "jeffrey",
-            "holden",
-            "arthur",
-            "rafael",
-            "shane",
-            "lane",
-            "louis",
-            "angelo",
-            "remington",
-            "troy",
-            "emerson",
-            "hector",
-            "emilio",
-            "anderson",
-            "trevor",
-            "phoenix",
-            "walter",
-            "johnathan",
-            "johnny",
-            "edwin",
-            "julius",
-            "barrett",
-            "leon",
-            "tyson",
-            "tobias",
-            "edgar",
-            "dominick",
-            "marshall",
-            "marco",
-            "joaquin",
-            "dante",
-            "andy",
-            "cruz",
-            "ali",
-            "finley",
-            "dalton",
-            "gideon",
-            "reed",
-            "sergio",
-            "jett",
-            "ronan",
-            "cohen",
-            "colt",
-            "erik",
-            "trenton",
-            "jared",
-            "walker",
-            "alexis",
-            "nash",
-            "gregory",
-            "emanuel",
-            "killian",
-            "allen",
-            "desmond",
-            "shawn",
-            "grady",
-            "quinn",
-            "frank",
-            "fabian",
-            "dakota",
-            "roberto",
-            "beckham",
-            "major",
-            "skyler",
-            "nehemiah",
-            "drew",
-            "muhammad",
-            "kendrick",
-            "pedro",
-            "orion",
-            "aden",
-            "ruben",
-            "clark",
-            "noel",
-            "porter",
-            "solomon",
-            "romeo",
-            "rory",
-            "leland",
-            "abram",
-            "derrick",
-            "gunnar",
-            "prince",
-            "brendan",
-            "pablo",
-            "jay",
-            "jensen",
-            "esteban",
-            "drake",
-            "warren",
-            "ismael",
-            "ari",
-            "russell",
-            "bruce",
-            "finnegan",
-            "marcos",
-            "jayson",
-            "theo",
-            "phillip",
-            "dexter",
-            "armando",
-            "braden",
-            "corey",
-            "gerardo",
-            "ellis",
-            "malcolm",
-            "tate",
-            "zachariah",
-            "chandler",
-            "milan",
-            "keith",
-            "danny",
-            "damon",
-            "enrique",
-            "jonas",
-            "kane",
-            "princeton",
-            "hugo",
-            "ronald",
-            "philip",
-            "ibrahim",
-            "maximilian",
-            "lawson",
-            "harvey",
-            "albert",
-            "donald",
-            "raul",
-            "franklin",
-            "hendrix",
-            "odin",
-            "brennan",
-            "jamison",
-            "dillon",
-            "brock",
-            "colby",
-            "alec",
-            "julio",
-            "scott",
-            "sullivan",
-            "rodrigo",
-            "taylor",
-            "rocco",
-            "royal",
-            "pierce",
-            "augustus",
-            "benson",
-            "moses",
-            "cyrus",
-            "davis",
-            "khalil",
-            "moises",
-            "nikolai",
-            "mathew",
-            "keaton",
-            "francis",
-            "quentin",
-            "jaime",
-            "lennox",
-            "atlas",
-            "jerry",
-            "ahmed",
-            "saul",
-            "sterling",
-            "dennis",
-            "lawrence",
-            "darius",
-            "eden",
-            "tony",
-            "dustin",
-            "chris",
-            "mohammed",
-            "nixon",
-            "emma",
-            "olivia",
-            "sophia",
-            "ava",
-            "isabella",
-            "mia",
-            "abigail",
-            "emily",
-            "charlotte",
-            "harper",
-            "madison",
-            "amelia",
-            "elizabeth",
-            "sofia",
-            "evelyn",
-            "chloe",
-            "ella",
-            "grace",
-            "victoria",
-            "aubrey",
-            "scarlett",
-            "addison",
-            "lillian",
-            "natalie",
-            "hannah",
-            "brooklyn",
-            "alexa",
-            "zoe",
-            "penelope",
-            "leah",
-            "audrey",
-            "savannah",
-            "allison",
-            "samantha",
-            "nora",
-            "skylar",
-            "camila",
-            "anna",
-            "ariana",
-            "ellie",
-            "claire",
-            "violet",
-            "stella",
-            "sadie",
-            "gabriella",
-            "lucy",
-            "kennedy",
-            "sarah",
-            "madelyn",
-            "eleanor",
-            "kaylee",
-            "caroline",
-            "hazel",
-            "hailey",
-            "genesis",
-            "kylie",
-            "autumn",
-            "piper",
-            "maya",
-            "mackenzie",
-            "bella",
-            "eva",
-            "naomi",
-            "aubree",
-            "aurora",
-            "melanie",
-            "lydia",
-            "brianna",
-            "ruby",
-            "katherine",
-            "ashley",
-            "alice",
-            "cora",
-            "julia",
-            "madeline",
-            "faith",
-            "annabelle",
-            "alyssa",
-            "isabelle",
-            "vivian",
-            "gianna",
-            "clara",
-            "reagan",
-            "alexandra",
-            "hadley",
-            "sophie",
-            "london",
-            "elena",
-            "kimberly",
-            "bailey",
-            "maria",
-            "luna",
-            "willow",
-            "jasmine",
-            "kinsley",
-            "valentina",
-            "kayla",
-            "delilah",
-            "andrea",
-            "natalia",
-            "lauren",
-            "morgan",
-            "sydney",
-            "mary",
-            "jade",
-            "trinity",
-            "josephine",
-            "jocelyn",
-            "emery",
-            "adeline",
-            "ariel",
-            "lilly",
-            "paige",
-            "molly",
-            "emilia",
-            "kendall",
-            "melody",
-            "isabel",
-            "brooke",
-            "mckenzie",
-            "nicole",
-            "payton",
-            "margaret",
-            "athena",
-            "amy",
-            "valeria",
-            "sara",
-            "angelina",
-            "gracie",
-            "rose",
-            "rachel",
-            "juliana",
-            "valerie",
-            "reese",
-            "elise",
-            "eliza",
-            "catherine",
-            "cecilia",
-            "genevieve",
-            "daisy",
-            "harmony",
-            "vanessa",
-            "adriana",
-            "presley",
-            "rebecca",
-            "julianna",
-            "michelle",
-            "arabella",
-            "summer",
-            "callie",
-            "kaitlyn",
-            "lila",
-            "daniela",
-            "alana",
-            "esther",
-            "gabrielle",
-            "jessica",
-            "stephanie",
-            "tessa",
-            "ana",
-            "alexandria",
-            "nova",
-            "anastasia",
-            "iris",
-            "marley",
-            "fiona",
-            "angela",
-            "giselle",
-            "kate",
-            "lola",
-            "lucia",
-            "juliette",
-            "georgia",
-            "hope",
-            "cali",
-            "vivienne",
-            "katelyn",
-            "juliet",
-            "maggie",
-            "delaney",
-            "camille",
-            "leila",
-            "mckenna",
-            "noelle",
-            "josie",
-            "jennifer",
-            "melissa",
-            "gabriela",
-            "allie",
-            "eloise",
-            "jacqueline",
-            "brynn",
-            "evangeline",
-            "paris",
-            "olive",
-            "rosalie",
-            "kali",
-            "gemma",
-            "lena",
-            "adelaide",
-            "alessandra",
-            "miranda",
-            "haley",
-            "june",
-            "harley",
-            "lucille",
-            "talia",
-            "phoebe",
-            "jane",
-            "elaina",
-            "adrianna",
-            "ruth",
-            "miriam",
-            "diana",
-            "mariana",
-            "danielle",
-            "jenna",
-            "shelby",
-            "nina",
-            "madeleine",
-            "chelsea",
-            "joanna",
-            "jada",
-            "lexi",
-            "katie",
-            "fatima",
-            "lilah",
-            "amanda",
-            "daniella",
-            "alexia",
-            "kathryn",
-            "selena",
-            "laura",
-            "annie",
-            "catalina",
-            "sloane",
-            "haven",
-            "christina",
-            "amber",
-            "erin",
-            "alison",
-            "ainsley",
-            "kendra",
-            "heidi",
-            "kelsey",
-            "nadia",
-            "cheyenne",
-            "arielle",
-            "lana",
-            "ada",
-            "allyson",
-            "felicity",
-            "kira",
-            "alicia",
-            "veronica",
-            "esmeralda",
-            "leslie",
-            "aspen",
-            "camilla",
-            "scarlet",
-            "daphne",
-            "bianca",
-            "mckinley",
-            "carmen",
-            "megan",
-            "skye",
-            "elsie",
-            "carly",
-            "mallory",
-            "annabella",
-            "elle",
-            "zara",
-            "april",
-            "gwendolyn",
-            "annalise",
-            "tatum",
-            "serena",
-            "dahlia",
-            "macy",
-            "briana",
-            "freya",
-            "helen",
-            "bethany",
-            "leia",
-            "harlow",
-            "angelica",
-            "marilyn",
-            "viviana",
-            "francesca",
-            "carolina",
-            "jillian",
-            "joy",
-            "abby",
-            "malaysia",
-            "kaia",
-            "bristol",
-            "lorelei",
-            "alejandra",
-            "justice",
-            "julie",
-            "marlee",
-            "brittany",
-            "amara",
-            "karina",
-            "thea",
-            "luciana",
-            "aubrie",
-            "janelle",
-            "leighton",
-            "eve",
-            "millie",
-            "kelly",
-            "lacey",
-            "willa",
-            "sylvia",
-            "melany",
-            "elisa",
-            "elsa",
-            "raven",
-            "holly",
-            "aisha",
-            "kyra",
-            "tiffany",
-            "jamie",
-            "celeste",
-            "lilian",
-            "priscilla",
-            "karen",
-            "lauryn",
-            "alanna",
-            "kara",
-            "karla",
-            "cassandra",
-            "evie"
-    };
+    String[] dictionary;
+    Keyboard keyboard;
 
-    char[] line1 = {
-            'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'
-    };
-    char[] line2 = {
-            'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'
-    };
-    char[] line3 = {
-            'z', 'x', 'c', 'v', 'b', 'n', 'm'
-    };
+    double insertionCost;
+    double deletionCost;
+    double equalCost;
+    double substitutionXCost;
+    double substitutionYCost;
 
-    HashMap<Character, Double> keyboardPositionX;
-    HashMap<Character, Double> keyboardPositionY;
-
-    HashMap<String, List<List<Double>>> suggestionMap;
+    HashMap<String, double[]> suggestionMap;
     int inputIndex;
-
-    double insertionCost = 1.0;
-    double deletionCost = 1.0;
-    double equalCost = -0.2;
-    double substitutionXCost = 1.0;
-    double substitutionYCost = 1.0;
 
     public Suggestion() {
 
-        keyboardPositionX = new HashMap<>();
-        keyboardPositionXInitilize(keyboardPositionX);
-        keyboardPositionY = new HashMap<>();
-        keyboardPositionYInitilize(keyboardPositionY);
+        dictionary = Source.dictionary;
+        keyboard = new Keyboard();
 
-        substitutionXCost = Math.pow(substitutionXCost, 2);
-        substitutionYCost = Math.pow(substitutionYCost, 2);
+        insertionCost = 1.0;
+        deletionCost = 1.0;
+        equalCost = -0.2;
+        substitutionXCost = Math.pow(1.0, 2);
+        substitutionYCost = Math.pow(1.0, 2);
 
-        suggestionInitilize();
+        suggestionMap = new HashMap<>();
+        for (String source : dictionary) {
+            int sourceLen = source.length() + 1;
+            double[] distance = new double[sourceLen];
+            for (int i = 0; i < sourceLen; i++) distance[i] = i;
+            suggestionMap.put(source, distance);
+        }
+
+        inputIndex = 0;
+    }
+
+    public void initialize() {
+        inputIndex = 0;
+        for (String source : dictionary) {
+            int sourceLen = source.length() + 1;
+            double[] distance = new double[sourceLen];
+            for (int i = 0; i < sourceLen; i++) distance[i] = i;
+            suggestionMap.put(source, distance);
+        }
     }
 
     public List<String> getSuggestion(String input, double x, double y) {
@@ -802,7 +59,7 @@ public class Suggestion {
         double minDist = Double.POSITIVE_INFINITY;
 
         for (int i = 0; i < dictionary.length; i++) {
-            double computedDist = computeLevenshteinDistanceChar(dictionary[i], input, x, y);
+            double computedDist = computeLevenshteinDistanceChar(dictionary[i], input.charAt(0), x, y);
             if (computedDist < minDist) {
                 minDist = computedDist;
                 suggetedResult.clear();
@@ -815,66 +72,25 @@ public class Suggestion {
         return suggetedResult;
     }
 
-    public void suggestionInitilize() {
+    public double computeLevenshteinDistanceChar(String source, char target, double x, double y) {
 
-        inputIndex = 0;
+        int sourceLen = source.length() + 1;
 
-        suggestionMap = new HashMap<>();
-        for (String item : dictionary) {
-            int itemLength = item.length();
-            List<List<Double>> source = new ArrayList<List<Double>>(itemLength+1);
-            for (int i = 0; i <= itemLength; i++) {
-                List<Double> target = new ArrayList<Double>();
-                target.add((double) i);
-                source.add(target);
-            }
-            suggestionMap.put(item, source);
+        double[] distance = suggestionMap.get(source);
+        double[] newDistance = new double[sourceLen];
+        newDistance[0] = 1;
+
+        for (int i = 1; i < sourceLen; i++) {
+            double costDeletion = newDistance[i-1] + deletionCost;
+            double costInsertion = distance[i] + insertionCost;
+            double costSubstitution = distance[i-1] + getPenelty(source.charAt(i - 1), target, x, y);
+
+            newDistance[i] = minimum(costDeletion, costInsertion, costSubstitution);
         }
 
-    }
+        suggestionMap.put(source, newDistance);
 
-    public String[] getDictionary() {
-        return dictionary;
-    }
-
-    public double computeLevenshteinDistanceString(CharSequence lhs, CharSequence rhs, double x, double y) {
-
-        int lhsLength = lhs.length();
-        int rhsLength = rhs.length();
-
-        double[][] distance = new double[lhsLength + 1][rhsLength + 1];
-
-        for (int i = 0; i <= lhsLength; i++)
-            distance[i][0] = i;
-        for (int j = 1; j <= rhsLength; j++)
-            distance[0][j] = j;
-
-        for (int i = 1; i <= lhsLength; i++) {
-            for (int j = 1; j <= rhsLength; j++) {
-                distance[i][j] = minimum(
-                        distance[i - 1][j] + deletionCost, // deletion
-                        distance[i][j - 1] + insertionCost, // insertion
-                        distance[i - 1][j - 1] + getPenelty(lhs.charAt(i - 1), rhs.charAt(j - 1), x, y)); // substitution
-            }
-        }
-
-        return distance[lhsLength][rhsLength];
-    }
-
-    public double computeLevenshteinDistanceChar(CharSequence lhs, CharSequence rhs, double x, double y) {
-
-        int lhsLength = lhs.length();
-
-        suggestionMap.get(lhs).get(0).add((double) inputIndex);
-
-        for (int i = 1; i <= lhsLength; i++) {
-            suggestionMap.get(lhs).get(i).add(inputIndex, minimum(
-                    suggestionMap.get(lhs).get(i-1).get(inputIndex) + deletionCost, // deletion
-                    suggestionMap.get(lhs).get(i).get(inputIndex-1) + insertionCost, // insertion
-                    suggestionMap.get(lhs).get(i-1).get(inputIndex-1) + getPenelty(lhs.charAt(i - 1), rhs.charAt(0), x, y))); // substitution
-        }
-
-        return suggestionMap.get(lhs).get(lhsLength).get(inputIndex);
+        return newDistance[sourceLen-1];
     }
 
     public double getPenelty(char a, char b, double x, double y) {
@@ -882,39 +98,14 @@ public class Suggestion {
             return equalCost;
         }
 
-        double distX = keyboardPositionX.get(a) - x;
-        double distY = keyboardPositionY.get(a) - y;
+        double distX = keyboard.positionX.get(a) - x;
+        double distY = keyboard.positionY.get(a) - y;
 
         double ret = Math.sqrt(
                 (substitutionXCost * Math.pow(distX, 2)) +
                         (substitutionYCost * Math.pow(distY, 2)));
 
         return ret;
-    }
-
-    private void keyboardPositionXInitilize(HashMap<Character, Double> keyboardPositionX) {
-        for (char key : line1) {
-            keyboardPositionX.put(key, 14.5 + 31 * String.valueOf(line1).indexOf(key));
-        }
-        for (char key : line2) {
-            keyboardPositionX.put(key, 35.5 + 31 * String.valueOf(line2).indexOf(key));
-        }
-        for (char key : line3) {
-            keyboardPositionX.put(key, 157.5 + 31 * String.valueOf(line3).indexOf(key));
-        }
-    }
-
-    private void keyboardPositionYInitilize(HashMap<Character, Double> keyboardPositionY) {
-
-        for (char key : line1) {
-            keyboardPositionY.put(key, 40.5);
-        }
-        for (char key : line2) {
-            keyboardPositionY.put(key, 87.5);
-        }
-        for (char key : line3) {
-            keyboardPositionY.put(key, 132.5);
-        }
     }
 
     private double minimum(double a, double b, double c) {
