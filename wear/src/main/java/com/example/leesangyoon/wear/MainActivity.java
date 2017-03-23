@@ -82,8 +82,6 @@ public class MainActivity extends WearableActivity {
                         String input = keyboardView.getKey(tempX, tempY);
                         inputString += input;
 
-                        editTextView.setText(inputString);
-
                         String[] params = {
                                 String.valueOf(input),
                                 String.valueOf(tempX),
@@ -91,26 +89,8 @@ public class MainActivity extends WearableActivity {
                         };
                         new SuggestionTask().execute(params);
 
-                        /*
-                        if (testIndex == testInput.length) {
+                        editTextView.setText(inputString);
 
-                            testIndex = 0;
-                            inputString = "";
-                            suggestion.suggestionInitilize();
-
-                        } else {
-
-                            inputString += String.valueOf(testInput[testIndex]);
-                            editTextView.setText(inputString);
-
-                            String[] params = {
-                                    String.valueOf(testInput[testIndex])
-                            };
-                            new SuggestionTask().execute(params);
-
-                            testIndex++;
-                        }
-                        */
                     }
                 }
 

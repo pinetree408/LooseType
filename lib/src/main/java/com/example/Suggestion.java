@@ -894,28 +894,26 @@ public class Suggestion {
 
     private void keyboardPositionXInitilize(HashMap<Character, Double> keyboardPositionX) {
         for (char key : line1) {
-            keyboardPositionX.put(key, 0.0 + String.valueOf(line1).indexOf(key));
+            keyboardPositionX.put(key, 14.5 + 31 * String.valueOf(line1).indexOf(key));
         }
         for (char key : line2) {
-            keyboardPositionX.put(key, 0.5 + String.valueOf(line2).indexOf(key));
+            keyboardPositionX.put(key, 35.5 + 31 * String.valueOf(line2).indexOf(key));
         }
         for (char key : line3) {
-            keyboardPositionX.put(key, 1.5 + String.valueOf(line3).indexOf(key));
+            keyboardPositionX.put(key, 157.5 + 31 * String.valueOf(line3).indexOf(key));
         }
     }
 
     private void keyboardPositionYInitilize(HashMap<Character, Double> keyboardPositionY) {
 
-        double height = Math.sqrt(1 - Math.pow(0.5, 2));
-
         for (char key : line1) {
-            keyboardPositionY.put(key, 0.0);
+            keyboardPositionY.put(key, 40.5);
         }
         for (char key : line2) {
-            keyboardPositionY.put(key, height);
+            keyboardPositionY.put(key, 87.5);
         }
         for (char key : line3) {
-            keyboardPositionY.put(key, 2 * height);
+            keyboardPositionY.put(key, 132.5);
         }
     }
 
