@@ -19,8 +19,6 @@ import com.example.Source;
 public class MainActivity extends WearableActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private BoxInsetLayout mContainerView;
-
     private TextView resetView;
     private TextView targetView;
     private TextView suggestFirstView;
@@ -47,23 +45,14 @@ public class MainActivity extends WearableActivity {
         suggestion = new Suggestion();
         targetList = Source.dictionary;
 
-        mContainerView = (BoxInsetLayout) findViewById(R.id.container);
-
         resetView = (TextView) findViewById(R.id.reset);
-        resetView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        resetView.setText("RESET");
 
         targetView = (TextView) findViewById(R.id.target);
-        targetView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-        int randomTarget = ThreadLocalRandom.current().nextInt(0, targetList.length + 1);
-        nowTarget = targetList[randomTarget];
-        targetView.setText(nowTarget);
+        setNextTarget();
+        Log.d(TAG, "START    : " + nowTarget);
 
         suggestFirstView = (TextView) findViewById(R.id.suggest1);
-        suggestFirstView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
         suggestSecondView = (TextView) findViewById(R.id.suggest2);
-        suggestSecondView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         keyboardView = (KeyboardView) findViewById(R.id.keyboard);
 
@@ -73,21 +62,11 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (resetView.getClass() == v.getClass()) {
-                        Log.d(TAG, "Reset");
-
-                        inputString = "";
-                        suggestion.initialize();
-
-                        suggestFirstView.setText("");
-                        suggestSecondView.setText("");
-
-                        startInputTime = null;
-                        totalInputTime = 0L;
-
+                        Log.d(TAG, "RESET    : " + nowTarget);
+                        targetInitialize();
                         targetView.setText(nowTarget);
                     }
                 }
-
                 return true;
             }
 
@@ -99,12 +78,13 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestFirstView.getClass() == v.getClass()) {
-                        Log.d(TAG, "Select Suggestion");
                         if (suggestFirstView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "Right");
+                            Log.d(TAG, "SELECT1  : RIGHT");
+                            targetInitialize();
                             setNextTarget();
+                            Log.d(TAG, "START    : " + nowTarget);
                         } else{
-                            Log.d(TAG, "Wrong");
+                            Log.d(TAG, "SELECT1  : WRONG");
                         }
                     }
                 }
@@ -119,12 +99,13 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestSecondView.getClass() == v.getClass()) {
-                        Log.d(TAG, "Select Suggestion");
                         if (suggestSecondView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "Right");
+                            Log.d(TAG, "SELECT1  : RIGHT");
+                            targetInitialize();
                             setNextTarget();
+                            Log.d(TAG, "START    : " + nowTarget);
                         } else{
-                            Log.d(TAG, "Wrong");
+                            Log.d(TAG, "SELECT1  : WRONG");
                         }
                     }
                 }
@@ -142,51 +123,64 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (keyboardView.getClass() == v.getClass()) {
 
-                        if (startInputTime == null) {
-                            startInputTime = System.currentTimeMillis();
-                        } else {
-                            totalInputTime = System.currentTimeMillis() - startInputTime;
-                            Double wpm = ((inputString.length() - 1) / (totalInputTime / 1000.0 / 60)) / 5;
-                            Log.d(TAG, "WPM: " + wpm);
-                            targetView.setText(String.format("%.2f", wpm));
-                        }
-
-                        double tempX = (double) event.getAxisValue(MotionEvent.AXIS_X);
-                        double tempY = (double) event.getAxisValue(MotionEvent.AXIS_Y);
-
-                        String input = keyboardView.getKey(tempX, tempY);
-                        inputString += input;
-
-                        String[] params = {
-                                String.valueOf(input),
-                                String.valueOf(tempX),
-                                String.valueOf(tempY)
-                        };
-                        Log.d(TAG, "Key: " + input + " Postion: x=" + tempX + ",y=" + tempY);
+                        String[] params = getInputInfo(event);
                         new SuggestionTask().execute(params);
+                        inputString += params[0];
+                        Log.d(TAG, "INPUT    : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
+
+                        Double wpm = calculateWPM();
+                        targetView.setText(String.format("%.2f", wpm));
+                        Log.d(TAG, "WPM      : " + wpm);
                     }
                 }
 
                 return true;
             }
         });
-
     }
 
     public void setNextTarget() {
+        int randomTarget = ThreadLocalRandom.current().nextInt(0, targetList.length + 1);
+        nowTarget = targetList[randomTarget];
+        targetView.setText(nowTarget);
+    }
+
+    public void targetInitialize() {
         inputString = "";
         suggestion.initialize();
 
         suggestFirstView.setText("");
         suggestSecondView.setText("");
 
-        int randomTarget = ThreadLocalRandom.current().nextInt(0, targetList.length + 1);
-        nowTarget = targetList[randomTarget];
-        targetView.setText(nowTarget);
-
         startInputTime = null;
         totalInputTime = 0L;
     }
+
+    public Double calculateWPM() {
+        Double wpm = 0.0;
+        if (startInputTime == null) {
+            startInputTime = System.currentTimeMillis();
+        } else {
+            totalInputTime = System.currentTimeMillis() - startInputTime;
+            wpm = ((inputString.length() - 1) / (totalInputTime / 1000.0 / 60)) / 5;
+        }
+        return wpm;
+    }
+
+    public String[] getInputInfo(MotionEvent event) {
+        double tempX = (double) event.getAxisValue(MotionEvent.AXIS_X);
+        double tempY = (double) event.getAxisValue(MotionEvent.AXIS_Y);
+
+        String input = keyboardView.getKey(tempX, tempY);
+
+        String[] params = {
+                String.valueOf(input),
+                String.valueOf(tempX),
+                String.valueOf(tempY)
+        };
+        return params;
+    }
+
 
     public class SuggestionTask extends AsyncTask<String, Void, List<String>> {
 
@@ -203,10 +197,9 @@ public class MainActivity extends WearableActivity {
             suggestResultList = suggestion.getSuggestion(params[0],
                     Double.parseDouble(params[1]), Double.parseDouble(params[2]));
             long end = System.currentTimeMillis();
-            Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
+            //Log.d(TAG,  "Suggestion Excution Time : " + ( end - start )/1000.0 );
 
             if (params[0].equals(String.valueOf(inputString.charAt(inputString.length()-1)))) {
-                Log.d(TAG, "Suggested");
                 return suggestResultList;
             }
 
