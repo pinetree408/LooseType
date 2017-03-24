@@ -68,6 +68,7 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (resetView.getClass() == v.getClass()) {
+                        Log.d(TAG, "Reset");
                         inputString = "";
                         suggestion.initialize();
                         suggestFirstView.setText("");
@@ -86,8 +87,12 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestFirstView.getClass() == v.getClass()) {
+                        Log.d(TAG, "Select Suggestion");
                         if (suggestFirstView.getText().equals(targetView.getText())) {
+                            Log.d(TAG, "Right");
                             setNextTarget();
+                        } else{
+                            Log.d(TAG, "Wrong");
                         }
                     }
                 }
@@ -102,8 +107,12 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestSecondView.getClass() == v.getClass()) {
+                        Log.d(TAG, "Select Suggestion");
                         if (suggestSecondView.getText().equals(targetView.getText())) {
+                            Log.d(TAG, "Right");
                             setNextTarget();
+                        } else{
+                            Log.d(TAG, "Wrong");
                         }
                     }
                 }
@@ -131,6 +140,7 @@ public class MainActivity extends WearableActivity {
                                 String.valueOf(tempX),
                                 String.valueOf(tempY)
                         };
+                        Log.d(TAG, "Key: " + input + " Postion: x=" + tempX + ",y=" + tempY);
                         new SuggestionTask().execute(params);
                     }
                 }
@@ -168,6 +178,7 @@ public class MainActivity extends WearableActivity {
             Log.d(TAG,  "Excution Time : " + ( end - start )/1000.0 );
 
             if (params[0].equals(String.valueOf(inputString.charAt(inputString.length()-1)))) {
+                Log.d(TAG, "Suggested");
                 return suggestResultList;
             }
 

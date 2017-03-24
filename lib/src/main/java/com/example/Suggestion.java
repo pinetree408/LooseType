@@ -23,11 +23,11 @@ public class Suggestion {
         dictionary = Source.dictionary;
         keyboard = new Keyboard();
 
-        insertionCost = 1.0;
-        deletionCost = 1.0;
-        equalCost = -0.2;
-        substitutionXCost = Math.pow(1.0, 2);
-        substitutionYCost = Math.pow(1.0, 2);
+        insertionCost = 0.705375;
+        deletionCost = 1.472625;
+        equalCost = -0.12426;
+        substitutionXCost = Math.pow(0.02625, 2);
+        substitutionYCost = Math.pow(0.02, 2);
 
         suggestionMap = new HashMap<>();
         for (String source : dictionary) {

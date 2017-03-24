@@ -95,7 +95,7 @@ public class KeyboardView extends View {
         double viewHeight = getHeight();
 
         double keyWidth = viewWidth / 10.5;
-        double keyHeight = viewHeight / 4;
+        double keyHeight = viewHeight / 3.5;
 
         if (keyWidthRef == -1.0) {
             keyWidthRef = keyWidth * 0.5;
