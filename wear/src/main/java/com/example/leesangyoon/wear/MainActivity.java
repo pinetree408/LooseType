@@ -31,8 +31,12 @@ public class MainActivity extends WearableActivity {
     Suggestion suggestion;
 
     String[] targetList;
+    String nowTarget;
 
     String inputString = "";
+
+    Long startInputTime;
+    Long totalInputTime = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,8 @@ public class MainActivity extends WearableActivity {
         targetView = (TextView) findViewById(R.id.target);
         targetView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         int randomTarget = ThreadLocalRandom.current().nextInt(0, targetList.length + 1);
-        targetView.setText(targetList[randomTarget]);
+        nowTarget = targetList[randomTarget];
+        targetView.setText(nowTarget);
 
         suggestFirstView = (TextView) findViewById(R.id.suggest1);
         suggestFirstView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
@@ -69,10 +74,17 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (resetView.getClass() == v.getClass()) {
                         Log.d(TAG, "Reset");
+
                         inputString = "";
                         suggestion.initialize();
+
                         suggestFirstView.setText("");
                         suggestSecondView.setText("");
+
+                        startInputTime = null;
+                        totalInputTime = 0L;
+
+                        targetView.setText(nowTarget);
                     }
                 }
 
@@ -88,7 +100,7 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestFirstView.getClass() == v.getClass()) {
                         Log.d(TAG, "Select Suggestion");
-                        if (suggestFirstView.getText().equals(targetView.getText())) {
+                        if (suggestFirstView.getText().equals(nowTarget)) {
                             Log.d(TAG, "Right");
                             setNextTarget();
                         } else{
@@ -108,7 +120,7 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestSecondView.getClass() == v.getClass()) {
                         Log.d(TAG, "Select Suggestion");
-                        if (suggestSecondView.getText().equals(targetView.getText())) {
+                        if (suggestSecondView.getText().equals(nowTarget)) {
                             Log.d(TAG, "Right");
                             setNextTarget();
                         } else{
@@ -129,6 +141,16 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (keyboardView.getClass() == v.getClass()) {
+
+                        if (startInputTime == null) {
+                            startInputTime = System.currentTimeMillis();
+                        } else {
+                            totalInputTime = System.currentTimeMillis() - startInputTime;
+                            Double wpm = ((inputString.length() - 1) / (totalInputTime / 1000.0 / 60)) / 5;
+                            Log.d(TAG, "WPM: " + wpm);
+                            targetView.setText(String.format("%.2f", wpm));
+                        }
+
                         double tempX = (double) event.getAxisValue(MotionEvent.AXIS_X);
                         double tempY = (double) event.getAxisValue(MotionEvent.AXIS_Y);
 
@@ -154,10 +176,16 @@ public class MainActivity extends WearableActivity {
     public void setNextTarget() {
         inputString = "";
         suggestion.initialize();
+
         suggestFirstView.setText("");
         suggestSecondView.setText("");
+
         int randomTarget = ThreadLocalRandom.current().nextInt(0, targetList.length + 1);
-        targetView.setText(targetList[randomTarget]);
+        nowTarget = targetList[randomTarget];
+        targetView.setText(nowTarget);
+
+        startInputTime = null;
+        totalInputTime = 0L;
     }
 
     public class SuggestionTask extends AsyncTask<String, Void, List<String>> {
@@ -192,15 +220,9 @@ public class MainActivity extends WearableActivity {
             suggestFirstView.setText("");
             suggestSecondView.setText("");
 
-            for (int i = 0; i < suggestedList.size(); i++) {
-                String suggested = suggestedList.get(i);
-                if (i == 0) {
-                    suggestFirstView.setText(suggested);
-                } else if (i == 1) {
-                    suggestSecondView.setText(suggested);
-                } else {
-                    break;
-                }
+            if (suggestedList.size() > 0) {
+                suggestFirstView.setText(suggestedList.get(0));
+                suggestSecondView.setText(suggestedList.get(1));
             }
         }
     }

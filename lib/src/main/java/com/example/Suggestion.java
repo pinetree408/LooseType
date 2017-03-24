@@ -1,5 +1,6 @@
 package com.example;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Suggestion {
     public Suggestion() {
 
         dictionary = Source.dictionary;
+        Arrays.sort(dictionary);
         keyboard = new Keyboard();
 
         insertionCost = 0.705375;
@@ -55,18 +57,35 @@ public class Suggestion {
         inputIndex++;
 
         List<String> suggetedResult = new ArrayList<String>();
+        List<String> min1Target = new ArrayList<String>();
+        List<String> min2Target = new ArrayList<String>();
 
-        double minDist = Double.POSITIVE_INFINITY;
+        double minDist1 = Double.POSITIVE_INFINITY;
+        double minDist2 = Double.POSITIVE_INFINITY;
 
-        for (int i = 0; i < dictionary.length; i++) {
-            double computedDist = computeLevenshteinDistanceChar(dictionary[i], input.charAt(0), x, y);
-            if (computedDist < minDist) {
-                minDist = computedDist;
-                suggetedResult.clear();
-                suggetedResult.add(dictionary[i]);
-            } else if (computedDist == minDist) {
-                suggetedResult.add(dictionary[i]);
+        for (String source: dictionary) {
+            double computedDist = computeLevenshteinDistanceChar(source, input.charAt(0), x, y);
+            if (computedDist < minDist1) {
+                minDist2 = minDist1;
+                min2Target.clear();
+                min2Target.addAll(min1Target);
+                minDist1 = computedDist;
+                min1Target.clear();
+                min1Target.add(source);
+            } else if (computedDist == minDist1) {
+                minDist2 = computedDist;
+                min1Target.add(source);
+            } else if (computedDist == minDist2) {
+                min2Target.add(source);
             }
+        }
+
+        if (min1Target.size() > 1) {
+            suggetedResult.add(min1Target.get(0));
+            suggetedResult.add(min1Target.get(1));
+        } else {
+            suggetedResult.add(min1Target.get(0));
+            suggetedResult.add(min2Target.get(0));
         }
 
         return suggetedResult;

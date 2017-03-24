@@ -78,7 +78,7 @@ public class KeyboardView extends View {
 
         keyboardPaint = new Paint();
         keyboardPaint.setAntiAlias(true);
-        keyboardPaint.setTextSize(25);
+        keyboardPaint.setTextSize(30);
         keyboardPaint.setTextAlign(Paint.Align.CENTER);
         keyboardPaint.setFakeBoldText(true);
 
