@@ -1,6 +1,10 @@
 package com.example.leesangyoon.wear;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
@@ -8,7 +12,12 @@ import android.support.wearable.view.BoxInsetLayout;
 import android.view.View;
 import android.view.MotionEvent;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,6 +27,7 @@ import com.example.Source;
 
 public class MainActivity extends WearableActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+    static final int REQUEST_CODE_FILE = 1;
 
     private TextView resetView;
     private TextView targetView;
@@ -36,11 +46,17 @@ public class MainActivity extends WearableActivity {
     Long startInputTime;
     Long totalInputTime = 0L;
 
+    String filePath;
+    String fileName;
+    File outputFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setAmbientEnabled();
+
+        checkFileWritePermission();
 
         suggestion = new Suggestion();
         targetList = Source.dictionary;
@@ -50,11 +66,17 @@ public class MainActivity extends WearableActivity {
         targetView = (TextView) findViewById(R.id.target);
         setNextTarget();
         Log.d(TAG, "START    : " + nowTarget);
+        fileWrite("START," + nowTarget);
 
         suggestFirstView = (TextView) findViewById(R.id.suggest1);
         suggestSecondView = (TextView) findViewById(R.id.suggest2);
 
         keyboardView = (KeyboardView) findViewById(R.id.keyboard);
+
+        filePath = Environment.getExternalStorageDirectory().getAbsoluteFile() + "/";
+        fileName = "result.csv";
+
+        fileOpen();
 
         resetView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -63,6 +85,7 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (resetView.getClass() == v.getClass()) {
                         Log.d(TAG, "RESET    : " + nowTarget);
+                        fileWrite("RESET," + nowTarget);
                         targetInitialize();
                         targetView.setText(nowTarget);
                     }
@@ -80,11 +103,14 @@ public class MainActivity extends WearableActivity {
                     if (suggestFirstView.getClass() == v.getClass()) {
                         if (suggestFirstView.getText().equals(nowTarget)) {
                             Log.d(TAG, "SELECT1  : RIGHT");
+                            fileWrite("SELECT1,RIGHT");
                             targetInitialize();
                             setNextTarget();
                             Log.d(TAG, "START    : " + nowTarget);
+                            fileWrite("START," + nowTarget);
                         } else{
                             Log.d(TAG, "SELECT1  : WRONG");
+                            fileWrite("SELECT1,WRONG");
                         }
                     }
                 }
@@ -100,12 +126,15 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestSecondView.getClass() == v.getClass()) {
                         if (suggestSecondView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "SELECT1  : RIGHT");
+                            Log.d(TAG, "SELECT2  : RIGHT");
+                            fileWrite("SELECT2,RIGHT");
                             targetInitialize();
                             setNextTarget();
                             Log.d(TAG, "START    : " + nowTarget);
+                            fileWrite("START," + nowTarget);
                         } else{
-                            Log.d(TAG, "SELECT1  : WRONG");
+                            Log.d(TAG, "SELECT2  : WRONG");
+                            fileWrite("SELECT2,WRONG");
                         }
                     }
                 }
@@ -127,16 +156,46 @@ public class MainActivity extends WearableActivity {
                         new SuggestionTask().execute(params);
                         inputString += params[0];
                         Log.d(TAG, "INPUT    : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
+                        fileWrite("INPUT,key : " + params[0] + ",postion : " + params[1] + "-" + params[2]);
 
                         Double wpm = calculateWPM();
                         targetView.setText(String.format("%.2f", wpm));
                         Log.d(TAG, "WPM      : " + wpm);
+                        fileWrite( "WPM," + wpm);
                     }
                 }
 
                 return true;
             }
         });
+    }
+
+    public void fileOpen() {
+        outputFile = new File(filePath + fileName);
+        boolean isSuccess = false;
+        if(outputFile!=null&&!outputFile.exists()){
+            Log.i( TAG , "!file.exists" );
+            try {
+                isSuccess = outputFile.createNewFile();
+            } catch (IOException e) {
+                Log.d(TAG, e.toString());
+            } finally{
+                Log.i(TAG, "isSuccess = " + isSuccess);
+            }
+        }else{
+            Log.i( TAG , "file.exists" );
+        }
+    }
+
+    public void fileWrite(String log) {
+        log = log + "\n";
+        try {
+            FileOutputStream os = new FileOutputStream(filePath + fileName, true);
+            os.write(log.getBytes());
+            os.close();
+        } catch (IOException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 
     public void setNextTarget() {
@@ -217,6 +276,40 @@ public class MainActivity extends WearableActivity {
                 suggestFirstView.setText(suggestedList.get(0));
                 suggestSecondView.setText(suggestedList.get(1));
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_FILE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                    Log.d(TAG, "Permission always deny");
+                }
+                break;
+        }
+    }
+
+    public void checkFileWritePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED
+                    || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Should we show an explanation?
+                if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    // Explain to the user why we need to write the permission.
+                    Toast.makeText(this, "Read/Write external storage", Toast.LENGTH_SHORT).show();
+                }
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_CODE_FILE);
+                // MY_PERMISSION_REQUEST_STORAGE is an
+                // app-defined int constant
+            } else {
+            }
+        } else {
         }
     }
 }
