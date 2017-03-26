@@ -31,7 +31,7 @@ public class MainActivity extends WearableActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int REQUEST_CODE_FILE = 1;
 
-    //private BoxInsetLayout containerView;
+    private TextView startTaskView;
 
     private TextView startView;
     private Timer jobScheduler;
@@ -69,9 +69,13 @@ public class MainActivity extends WearableActivity {
         suggestion = new Suggestion();
         targetList = Source.dictionary;
 
+        startTaskView = (TextView) findViewById(R.id.main);
+
         startView = (TextView) findViewById(R.id.start);
+        startView.setVisibility(View.GONE);
 
         taskView = (ViewGroup) findViewById(R.id.task);
+        taskView.setVisibility(View.GONE);
 
         resetView = (TextView) findViewById(R.id.reset);
 
@@ -89,6 +93,23 @@ public class MainActivity extends WearableActivity {
         fileName = "result.csv";
 
         fileOpen();
+
+        jobScheduler = new Timer();
+
+        startTaskView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (startTaskView.getClass() == v.getClass()) {
+                        startTaskView.setVisibility(View.GONE);
+                        startTask();
+                    }
+                }
+                return true;
+            }
+
+        });
 
         resetView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -118,10 +139,6 @@ public class MainActivity extends WearableActivity {
                             fileWrite("SELECT1,RIGHT");
                             targetInitialize();
                             setNextTarget();
-
-                            startView.setText(nowTarget);
-                            startView.setVisibility(View.VISIBLE);
-                            taskView.setVisibility(View.GONE);
                             startTask();
 
                             Log.d(TAG, "START    : " + nowTarget);
@@ -148,12 +165,8 @@ public class MainActivity extends WearableActivity {
                             fileWrite("SELECT2,RIGHT");
                             targetInitialize();
                             setNextTarget();
-
-                            startView.setText(nowTarget);
-                            startView.setVisibility(View.VISIBLE);
-                            taskView.setVisibility(View.GONE);
-
                             startTask();
+
                             Log.d(TAG, "START    : " + nowTarget);
                             fileWrite("START," + nowTarget);
                         } else{
@@ -192,16 +205,13 @@ public class MainActivity extends WearableActivity {
                 return true;
             }
         });
+    }
 
+    public void startTask() {
         startView.setText(nowTarget);
         startView.setVisibility(View.VISIBLE);
         taskView.setVisibility(View.GONE);
 
-        jobScheduler = new Timer();
-        startTask();
-    }
-
-    public void startTask() {
         jobScheduler.schedule(
                 new TimerTask() {
                     @Override
