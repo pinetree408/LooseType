@@ -2,24 +2,26 @@ package com.example.leesangyoon.wear;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
-import android.support.wearable.view.BoxInsetLayout;
 import android.view.View;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.example.Suggestion;
@@ -29,6 +31,12 @@ public class MainActivity extends WearableActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int REQUEST_CODE_FILE = 1;
 
+    //private BoxInsetLayout containerView;
+
+    private TextView startView;
+    private Timer jobScheduler;
+
+    private ViewGroup taskView;
     private TextView resetView;
     private TextView targetView;
     private TextView suggestFirstView;
@@ -60,6 +68,10 @@ public class MainActivity extends WearableActivity {
 
         suggestion = new Suggestion();
         targetList = Source.dictionary;
+
+        startView = (TextView) findViewById(R.id.start);
+
+        taskView = (ViewGroup) findViewById(R.id.task);
 
         resetView = (TextView) findViewById(R.id.reset);
 
@@ -106,6 +118,12 @@ public class MainActivity extends WearableActivity {
                             fileWrite("SELECT1,RIGHT");
                             targetInitialize();
                             setNextTarget();
+
+                            startView.setText(nowTarget);
+                            startView.setVisibility(View.VISIBLE);
+                            taskView.setVisibility(View.GONE);
+                            startTask();
+
                             Log.d(TAG, "START    : " + nowTarget);
                             fileWrite("START," + nowTarget);
                         } else{
@@ -130,6 +148,12 @@ public class MainActivity extends WearableActivity {
                             fileWrite("SELECT2,RIGHT");
                             targetInitialize();
                             setNextTarget();
+
+                            startView.setText(nowTarget);
+                            startView.setVisibility(View.VISIBLE);
+                            taskView.setVisibility(View.GONE);
+
+                            startTask();
                             Log.d(TAG, "START    : " + nowTarget);
                             fileWrite("START," + nowTarget);
                         } else{
@@ -168,6 +192,32 @@ public class MainActivity extends WearableActivity {
                 return true;
             }
         });
+
+        startView.setText(nowTarget);
+        startView.setVisibility(View.VISIBLE);
+        taskView.setVisibility(View.GONE);
+
+        jobScheduler = new Timer();
+        startTask();
+    }
+
+    public void startTask() {
+        jobScheduler.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startView.setVisibility(View.GONE);
+                                        taskView.setVisibility(View.VISIBLE);
+                                    }
+                                }
+                        );
+                    }
+                },
+                2000);
     }
 
     public void fileOpen() {
