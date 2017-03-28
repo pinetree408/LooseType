@@ -56,7 +56,7 @@ public class KeyboardView extends View {
             String pos = keyboardCharPos.get(i);
             double posX = Double.parseDouble(pos.split("-")[0]);
             double posY = Double.parseDouble(pos.split("-")[1]);
-            if ((Math.abs(posX - x) < keyWidthRef) && (Math.abs(posY - y) < keyHeightRef)) {
+            if ((Math.abs(posX - x) <= keyWidthRef) && (Math.abs(posY - y) <= keyHeightRef)) {
                 id = i;
                 break;
             }
@@ -78,7 +78,7 @@ public class KeyboardView extends View {
 
         keyboardPaint = new Paint();
         keyboardPaint.setAntiAlias(true);
-        keyboardPaint.setTextSize(30);
+        keyboardPaint.setTextSize(25);
         keyboardPaint.setTextAlign(Paint.Align.CENTER);
         keyboardPaint.setFakeBoldText(true);
 
@@ -94,8 +94,8 @@ public class KeyboardView extends View {
         double viewWidth = getWidth();
         double viewHeight = getHeight();
 
-        double keyWidth = viewWidth / 10.5;
-        double keyHeight = viewHeight / 3.5;
+        double keyWidth = viewWidth / 10;
+        double keyHeight = viewHeight / 3;
 
         if (keyWidthRef == -1.0) {
             keyWidthRef = keyWidth * 0.5;

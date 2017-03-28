@@ -17,7 +17,9 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -57,6 +59,7 @@ public class MainActivity extends WearableActivity {
     String filePath;
     String fileName;
     File outputFile;
+    SimpleDateFormat dateFormat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +84,6 @@ public class MainActivity extends WearableActivity {
 
         targetView = (TextView) findViewById(R.id.target);
         setNextTarget();
-        Log.d(TAG, "START    : " + nowTarget);
-        fileWrite("START," + nowTarget);
 
         suggestFirstView = (TextView) findViewById(R.id.suggest1);
         suggestSecondView = (TextView) findViewById(R.id.suggest2);
@@ -92,8 +93,11 @@ public class MainActivity extends WearableActivity {
 
         filePath = Environment.getExternalStorageDirectory().getAbsoluteFile() + "/";
         fileName = "result.csv";
-
         fileOpen();
+        dateFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS");
+
+        Log.d(TAG, "START    : " + nowTarget);
+        fileWrite("START," + nowTarget);
 
         jobScheduler = new Timer();
 
@@ -217,15 +221,16 @@ public class MainActivity extends WearableActivity {
                     if (keyboardView.getClass() == v.getClass()) {
 
                         String[] params = getInputInfo(event);
-                        new SuggestionTask().execute(params);
                         inputString += params[0];
+
+                        new SuggestionTask().execute(params);
                         Log.d(TAG, "INPUT      : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
                         fileWrite("INPUT,key : " + params[0] + ",postion : " + params[1] + "-" + params[2]);
 
                         Double wpm = calculateWPM();
                         //targetView.setText(String.format("%.2f", wpm));
                         Log.d(TAG, "WPM        : " + wpm);
-                        fileWrite( "WPM," + wpm);
+                        fileWrite("WPM," + wpm);
                     }
                 }
 
@@ -291,7 +296,8 @@ public class MainActivity extends WearableActivity {
     }
 
     public void fileWrite(String log) {
-        log = log + "\n";
+        String now = dateFormat.format(new Date());
+        log = now + "," + log + "\n";
         try {
             FileOutputStream os = new FileOutputStream(filePath + fileName, true);
             os.write(log.getBytes());
@@ -334,6 +340,8 @@ public class MainActivity extends WearableActivity {
         double tempX = (double) event.getAxisValue(MotionEvent.AXIS_X);
         double tempY = (double) event.getAxisValue(MotionEvent.AXIS_Y);
 
+        //Log.d(TAG, "keywidth:"+keyboardView.keyWidthRef + "keyheight:"+keyboardView.keyHeightRef);
+        //Log.d(TAG, "keypos" + keyboardView.keyboardCharPos.toString());
         String input = keyboardView.getKey(tempX, tempY);
 
         String[] params = {

@@ -45,6 +45,7 @@
             android:id="@+id/target"
             android:layout_width="match_parent"
             android:layout_height="20dp"
+            android:textStyle="bold"
             android:textAlignment="center"
             android:gravity="center"/>
 
@@ -90,7 +91,7 @@
         <com.example.leesangyoon.wear.KeyboardView
             android:id="@+id/keyboard"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

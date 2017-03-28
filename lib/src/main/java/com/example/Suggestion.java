@@ -133,9 +133,6 @@ public class Suggestion {
         suggestionMap.put(source, newDistance);
 
         int targetIndex = sourceLen-1;
-        if (sourceLen - 1 > inputString.length() + 2) {
-            targetIndex = inputString.length() + 2;
-        }
 
         return newDistance[targetIndex];
     }
