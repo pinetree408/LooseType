@@ -6,7 +6,6 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     tools:context="com.example.leesangyoon.wear.MainActivity" tools:deviceIds="wear">
 
-
     <LinearLayout
         android:id="@+id/user"
         android:layout_width="match_parent"
@@ -185,11 +184,13 @@
         android:text="END"
         />
 
+    <!-- Task Layout -->
     <LinearLayout
         android:id="@+id/task"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <View
             android:layout_width="match_parent"
             android:layout_height="5dp"/>
@@ -232,6 +233,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="10dp"
+                android:background="#cccccc"
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:gravity="center"/>
