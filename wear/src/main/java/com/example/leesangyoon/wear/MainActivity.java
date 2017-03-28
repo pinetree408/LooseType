@@ -18,25 +18,27 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.example.Suggestion;
-import com.example.Source;
 
 public class MainActivity extends WearableActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int REQUEST_CODE_FILE = 1;
 
     private TextView startTaskView;
+    private ViewGroup userView;
+    private TextView user1View, user2View, user3View, user4View;
+    private TextView user5View, user6View, user7View, user8View;
+    private TextView user9View, user10View, user11View, user12View;
 
     private TextView startView;
     private Timer jobScheduler;
+
+    private TextView endView;
 
     private ViewGroup taskView;
     private TextView targetView;
@@ -59,12 +61,19 @@ public class MainActivity extends WearableActivity {
     String filePath;
     String fileName;
     File outputFile;
-    SimpleDateFormat dateFormat;
 
     private int dragThreshold = 30;
     private final double angleFactor = (double) 180/Math.PI;
     private float touchDownX, touchDownY;
     private long touchDownTime;
+
+    int block;
+    final int numOfBlock = 6;
+    int trial;
+    final int numOfTrial = 25;
+    long startTime;
+
+    int userNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,33 +83,47 @@ public class MainActivity extends WearableActivity {
 
         checkFileWritePermission();
 
+        block = 0;
+        trial = -1;
+        userNum = 1;
+
         suggestion = new Suggestion();
-        targetList = Source.dictionary;
+        setTargetList(userNum);
+        //StdRandom.shuffle(targetList);
 
         startTaskView = (TextView) findViewById(R.id.main);
+        startTaskView.setVisibility(View.GONE);
 
         startView = (TextView) findViewById(R.id.start);
         startView.setVisibility(View.GONE);
 
+        endView = (TextView) findViewById(R.id.end);
+        endView.setVisibility(View.GONE);
+
         taskView = (ViewGroup) findViewById(R.id.task);
         taskView.setVisibility(View.GONE);
 
+        userView = (ViewGroup) findViewById(R.id.user);
+        user1View = (TextView) findViewById(R.id.user1);
+        user2View = (TextView) findViewById(R.id.user2);
+        user3View = (TextView) findViewById(R.id.user3);
+        user4View = (TextView) findViewById(R.id.user4);
+        user5View = (TextView) findViewById(R.id.user5);
+        user6View = (TextView) findViewById(R.id.user6);
+        user7View = (TextView) findViewById(R.id.user7);
+        user8View = (TextView) findViewById(R.id.user8);
+        user9View = (TextView) findViewById(R.id.user9);
+        user10View = (TextView) findViewById(R.id.user10);
+        user11View = (TextView) findViewById(R.id.user11);
+        user12View = (TextView) findViewById(R.id.user12);
+
         targetView = (TextView) findViewById(R.id.target);
-        setNextTarget();
 
         suggestFirstView = (TextView) findViewById(R.id.suggest1);
         suggestSecondView = (TextView) findViewById(R.id.suggest2);
         suggestThirdView = (TextView) findViewById(R.id.suggest3);
 
         keyboardView = (KeyboardView) findViewById(R.id.keyboard);
-
-        filePath = Environment.getExternalStorageDirectory().getAbsoluteFile() + "/";
-        fileName = "result.csv";
-        fileOpen();
-        dateFormat = new SimpleDateFormat("MM-dd HH:mm:ss.SSS");
-
-        Log.d(TAG, "START    : " + nowTarget);
-        fileWrite("START," + nowTarget);
 
         jobScheduler = new Timer();
 
@@ -111,6 +134,11 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (startTaskView.getClass() == v.getClass()) {
                         startTaskView.setVisibility(View.GONE);
+                        filePath = Environment.getExternalStorageDirectory().getAbsoluteFile() + "/";
+                        fileName = "result_" + userNum + "_" + block +  ".csv";
+                        fileOpen();
+                        fileWrite("block, trial, eventTime, target, inputKey, posX1, posY1, suggestionList");
+                        setNextTarget();
                         startTask();
                     }
                 }
@@ -122,23 +150,30 @@ public class MainActivity extends WearableActivity {
         suggestFirstView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (suggestFirstView.getClass() == v.getClass()) {
-                        if (suggestFirstView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "SELECT1    : RIGHT");
-                            fileWrite("SELECT1,RIGHT");
-                            targetInitialize();
-                            setNextTarget();
-                            startTask();
+                int tempX = (int) event.getAxisValue(MotionEvent.AXIS_X);
+                int tempY = (int) event.getAxisValue(MotionEvent.AXIS_Y);
+                long eventTime = System.currentTimeMillis();
 
-                            Log.d(TAG, "START      : " + nowTarget);
-                            fileWrite("START," + nowTarget);
-                        } else{
-                            Log.d(TAG, "SELECT1    : WRONG");
-                            fileWrite("SELECT1,WRONG");
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (suggestFirstView.getClass() == v.getClass()) {
+                            String log = block + "," +
+                                    trial + "," +
+                                    (eventTime - startTime) + "," +
+                                    nowTarget + "," +
+                                    "1" + "," +
+                                    tempX + "," +
+                                    tempY + "," +
+                                    suggestFirstView.getText()
+                                    ;
+                            fileWrite(log);
+                            if (suggestFirstView.getText().equals(nowTarget)) {
+                                targetInitialize();
+                                setNextTarget();
+                                startTask();
+                            }
                         }
-                    }
+                        break;
                 }
                 return true;
             }
@@ -148,53 +183,65 @@ public class MainActivity extends WearableActivity {
         suggestSecondView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (suggestSecondView.getClass() == v.getClass()) {
-                        if (suggestSecondView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "SELECT2    : RIGHT");
-                            fileWrite("SELECT2,RIGHT");
-                            targetInitialize();
-                            setNextTarget();
-                            startTask();
+                int tempX = (int) event.getAxisValue(MotionEvent.AXIS_X);
+                int tempY = (int) event.getAxisValue(MotionEvent.AXIS_Y);
+                long eventTime = System.currentTimeMillis();
 
-                            Log.d(TAG, "START      : " + nowTarget);
-                            fileWrite("START," + nowTarget);
-                        } else{
-                            Log.d(TAG, "SELECT2    : WRONG");
-                            fileWrite("SELECT2,WRONG");
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (suggestSecondView.getClass() == v.getClass()) {
+                            String log = block + "," +
+                                    trial + "," +
+                                    (eventTime - startTime) + "," +
+                                    nowTarget + "," +
+                                    "2" + "," +
+                                    tempX + "," +
+                                    tempY + "," +
+                                    suggestSecondView.getText()
+                                    ;
+                            fileWrite(log);
+                            if (suggestSecondView.getText().equals(nowTarget)) {
+                                targetInitialize();
+                                setNextTarget();
+                                startTask();
+                            }
                         }
-                    }
+                        break;
                 }
                 return true;
             }
-
         });
 
         suggestThirdView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (suggestThirdView.getClass() == v.getClass()) {
-                        if (suggestThirdView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "SELECT3    : RIGHT");
-                            fileWrite("SELECT3,RIGHT");
-                            targetInitialize();
-                            setNextTarget();
-                            startTask();
+                int tempX = (int) event.getAxisValue(MotionEvent.AXIS_X);
+                int tempY = (int) event.getAxisValue(MotionEvent.AXIS_Y);
+                long eventTime = System.currentTimeMillis();
 
-                            Log.d(TAG, "START      : " + nowTarget);
-                            fileWrite("START," + nowTarget);
-                        } else{
-                            Log.d(TAG, "SELECT3    : WRONG");
-                            fileWrite("SELECT3,WRONG");
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (suggestThirdView.getClass() == v.getClass()) {
+                            String log = block + "," +
+                                    trial + "," +
+                                    (eventTime - startTime) + "," +
+                                    nowTarget + "," +
+                                    "3" + "," +
+                                    tempX + "," +
+                                    tempY + "," +
+                                    suggestThirdView.getText()
+                                    ;
+                            fileWrite(log);
+                            if (suggestThirdView.getText().equals(nowTarget)) {
+                                targetInitialize();
+                                setNextTarget();
+                                startTask();
+                            }
                         }
-                    }
+                        break;
                 }
                 return true;
             }
-
         });
 
 
@@ -243,8 +290,17 @@ public class MainActivity extends WearableActivity {
                                         break;
                                     case 1:
                                         //top;
-                                        Log.d(TAG, "RESET      : " + nowTarget);
-                                        fileWrite("RESET," + nowTarget);
+                                        String log = block + "," +
+                                                trial + "," +
+                                                (eventTime - startTime) + "," +
+                                                nowTarget + "," +
+                                                "reset" + "," +
+                                                tempX + "," +
+                                                tempY + "," +
+                                                ""
+                                                ;
+                                        fileWrite(log);
+
                                         targetInitialize();
                                         targetView.setText(nowTarget);
                                         break;
@@ -261,17 +317,202 @@ public class MainActivity extends WearableActivity {
                             inputString += params[0];
 
                             new SuggestionTask().execute(params);
-                            Log.d(TAG, "INPUT      : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
-                            fileWrite("INPUT,key : " + params[0] + ",postion : " + params[1] + "-" + params[2]);
-
-                            Double wpm = calculateWPM();
-                            Log.d(TAG, "WPM        : " + wpm);
-                            fileWrite("WPM," + wpm);
+                            String log = block + "," +
+                                    trial + "," +
+                                    (eventTime - startTime) + "," +
+                                    nowTarget + "," +
+                                    params[0] + "," +
+                                    tempX + "," +
+                                    tempY + "," +
+                                    ""
+                                    ;
+                            fileWrite(log);
                         }
                         break;
                 }
                 return true;
             }
+        });
+
+        user1View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user1View.getClass() == v.getClass()) {
+                        userNum = 1;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user2View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user2View.getClass() == v.getClass()) {
+                        userNum = 2;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user3View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user3View.getClass() == v.getClass()) {
+                        userNum = 3;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user4View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user4View.getClass() == v.getClass()) {
+                        userNum = 4;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user5View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user5View.getClass() == v.getClass()) {
+                        userNum = 5;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user6View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user6View.getClass() == v.getClass()) {
+                        userNum = 6;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user7View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user7View.getClass() == v.getClass()) {
+                        userNum = 7;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user8View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user8View.getClass() == v.getClass()) {
+                        userNum = 8;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user9View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user9View.getClass() == v.getClass()) {
+                        userNum = 9;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user10View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user10View.getClass() == v.getClass()) {
+                        userNum = 10;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user11View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user11View.getClass() == v.getClass()) {
+                        userNum = 11;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
+        });
+        user12View.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (user12View.getClass() == v.getClass()) {
+                        userNum = 12;
+                        userView.setVisibility(View.GONE);
+                        startTaskView.setVisibility(View.VISIBLE);
+                    }
+                }
+                return true;
+            }
+
         });
     }
 
@@ -282,46 +523,60 @@ public class MainActivity extends WearableActivity {
 
         taskView.setVisibility(View.GONE);
 
-        jobScheduler.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        startView.setBackgroundColor(Color.parseColor("#f08080"));
+        if (trial == 25) {
+            startView.setVisibility(View.GONE);
+            endView.setVisibility(View.VISIBLE);
+        } else {
+            jobScheduler.schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            startView.setBackgroundColor(Color.parseColor("#f08080"));
+                                        }
                                     }
-                                }
-                        );
-                        startView.setOnTouchListener(new View.OnTouchListener() {
+                            );
+                            startView.setOnTouchListener(new View.OnTouchListener() {
 
-                            @Override
-                            public boolean onTouch(View v, MotionEvent event) {
-                                // TODO Auto-generated method stub
-                                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                                    if (startView.getClass() == v.getClass()) {
-                                        Log.d(TAG, "READY-START: " + nowTarget);
-                                        runOnUiThread(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        startView.setBackgroundColor(Color.parseColor("#ffffff"));
-                                                        startView.setVisibility(View.GONE);
-                                                        taskView.setVisibility(View.VISIBLE);
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    // TODO Auto-generated method stub
+                                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                        if (startView.getClass() == v.getClass()) {
+                                            startTime = System.currentTimeMillis();
+                                            String log = block + "," +
+                                                    trial + "," +
+                                                    startTime + "," +
+                                                    nowTarget + "," +
+                                                    "start," +
+                                                    "," +
+                                                    "," +
+                                                    "";
+                                            fileWrite(log);
+                                            runOnUiThread(
+                                                    new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            startView.setBackgroundColor(Color.parseColor("#ffffff"));
+                                                            startView.setVisibility(View.GONE);
+                                                            taskView.setVisibility(View.VISIBLE);
+                                                        }
                                                     }
-                                                }
-                                        );
+                                            );
 
+                                        }
                                     }
-                                }
 
-                                return true;
-                            }
-                        });
-                    }
-                },
-                2000);
+                                    return true;
+                                }
+                            });
+                        }
+                    },
+                    2000);
+        }
     }
 
     public void fileOpen() {
@@ -338,12 +593,14 @@ public class MainActivity extends WearableActivity {
             }
         }else{
             Log.i( TAG , "file.exists" );
+            block++;
+            fileName = "result_" + userNum + "_" + block +  ".csv";
+            fileOpen();
         }
     }
 
     public void fileWrite(String log) {
-        String now = dateFormat.format(new Date());
-        log = now + "," + log + "\n";
+        log = log + "\n";
         try {
             FileOutputStream os = new FileOutputStream(filePath + fileName, true);
             os.write(log.getBytes());
@@ -353,9 +610,62 @@ public class MainActivity extends WearableActivity {
         }
     }
 
+    public void setTargetList(int userNum) {
+        switch (userNum) {
+            case 1:
+                //3
+                targetList = Source.set3;
+                break;
+            case 2:
+                //1
+                targetList = Source.set1;
+                break;
+            case 3:
+                //2
+                targetList = Source.set2;
+                break;
+            case 4:
+                //3
+                targetList = Source.set3;
+                break;
+            case 5:
+                //1
+                targetList = Source.set1;
+                break;
+            case 6:
+                //2
+                targetList = Source.set2;
+                break;
+            case 7:
+                //3
+                targetList = Source.set3;
+                break;
+            case 8:
+                //1
+                targetList = Source.set1;
+                break;
+            case 9:
+                //1
+                targetList = Source.set1;
+                break;
+            case 10:
+                //2
+                targetList = Source.set2;
+                break;
+            case 11:
+                //3
+                targetList = Source.set3;
+                break;
+            case 12:
+                //2
+                targetList = Source.set2;
+                break;
+        }
+    }
+
     public void setNextTarget() {
-        int randomTarget = ThreadLocalRandom.current().nextInt(0, targetList.length + 1);
-        nowTarget = targetList[randomTarget];
+        trial++;
+        nowTarget = targetList[trial + (block * 25)];
         targetView.setText(nowTarget);
     }
 
@@ -386,8 +696,6 @@ public class MainActivity extends WearableActivity {
         double tempX = (double) event.getAxisValue(MotionEvent.AXIS_X);
         double tempY = (double) event.getAxisValue(MotionEvent.AXIS_Y);
 
-        //Log.d(TAG, "keywidth:"+keyboardView.keyWidthRef + "keyheight:"+keyboardView.keyHeightRef);
-        //Log.d(TAG, "keypos" + keyboardView.keyboardCharPos.toString());
         String input = keyboardView.getKey(tempX, tempY);
 
         String[] params = {
@@ -409,12 +717,21 @@ public class MainActivity extends WearableActivity {
         protected List<String> doInBackground(String... params) {
 
             List<String> ret = new ArrayList<String>();
+            long eventTime = System.currentTimeMillis();
 
-            long start = System.currentTimeMillis();
             suggestResultList = suggestion.getSuggestion(params[0],
                     Double.parseDouble(params[1]), Double.parseDouble(params[2]), inputString);
-            long end = System.currentTimeMillis();
-            //Log.d(TAG,  "Suggestion Excution Time : " + ( end - start )/1000.0 );
+
+            String log = block + "," +
+                    trial + "," +
+                    (eventTime - startTime) + "," +
+                    nowTarget + "," +
+                    "," +
+                    "," +
+                    "," +
+                    suggestResultList.toString();
+                    ;
+            fileWrite(log);
 
             if (params[0].equals(String.valueOf(inputString.charAt(inputString.length()-1)))) {
                 return suggestResultList;

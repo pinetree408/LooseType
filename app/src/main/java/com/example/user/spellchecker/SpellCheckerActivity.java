@@ -2316,6 +2316,9 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                             if (answer.length() >= item.length() * 2) {
                                 continue;
                             }
+                            if (Math.abs(answer.length() -item.length()) > 2) {
+                                Log.d(TAG, " ~ LEN" + answer + "-" + item);
+                            }
                             targetList.add(item);
                             sourceList.add(answer);
                         }

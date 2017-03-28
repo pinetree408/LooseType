@@ -32,6 +32,8 @@ public class KeyboardView extends View {
     double keyWidthRef;
     double keyHeightRef;
 
+
+
     Paint keyboardPaint;
 
     public KeyboardView(Context context) {
@@ -78,9 +80,7 @@ public class KeyboardView extends View {
 
         keyboardPaint = new Paint();
         keyboardPaint.setAntiAlias(true);
-        keyboardPaint.setTextSize(25);
         keyboardPaint.setTextAlign(Paint.Align.CENTER);
-        keyboardPaint.setFakeBoldText(true);
 
         keyboardCharPos = new ArrayList<String>();
         keyHeightRef = -1.0;
@@ -97,6 +97,7 @@ public class KeyboardView extends View {
         double keyWidth = viewWidth / 10;
         //double keyHeight = viewHeight / 4;
         double keyHeight = keyWidth * 1.5;
+        keyboardPaint.setTextSize((float) (keyHeight * 0.9));
 
         if (keyWidthRef == -1.0) {
             keyWidthRef = keyWidth * 0.5;
@@ -106,7 +107,8 @@ public class KeyboardView extends View {
         }
 
         double keyboardPaddingLeft = (viewWidth - (10 * keyWidth)) * 0.5;
-        double keyboardPaddingTop = (viewHeight - (3 * keyHeight)) * 0.5;
+        //double keyboardPaddingTop = 0;
+        double keyboardPaddingTop = (viewHeight - (3 * keyHeight)) * 0.4;
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 10; j++) {

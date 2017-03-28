@@ -67,6 +67,9 @@ public class Suggestion {
 
         for (String source: dictionary) {
             double computedDist = computeLevenshteinDistanceChar(source, input.charAt(0), x, y, inputString);
+            if (Math.abs(inputString.length() - source.length()) > 2) {
+                continue;
+            }
             if (computedDist < minDist1) {
                 minDist2 = minDist1;
                 min2Target.clear();
