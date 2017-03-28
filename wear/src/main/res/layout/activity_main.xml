@@ -30,43 +30,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/reset"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="15dp"
-            android:background="@drawable/border_gray"
-            android:text="@string/reset"
-            android:textSize="5dp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:gravity="center"/>
+            android:layout_height="10dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="23dp"
             android:orientation="horizontal"
-            android:weightSum="2">
-            <TextView
-                android:id="@+id/suggest1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingRight="10dp"
-                android:textSize="12dp"
-                android:textStyle="bold"
-                android:layout_weight="1"
-                android:gravity="right|center_vertical"
-                android:textAlignment="gravity" />
+            android:weightSum="1">
             <TextView
                 android:id="@+id/target"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingLeft="10dp"
                 android:textSize="12dp"
                 android:textStyle="bold"
                 android:layout_weight="1"
-                android:gravity="left|center_vertical"
-                android:textAlignment="gravity"
+                android:gravity="center_vertical"
+                android:textAlignment="center"
                 android:background="@drawable/border_white"/>
         </LinearLayout>
 
@@ -75,8 +56,16 @@
             android:layout_width="match_parent"
             android:layout_height="23dp"
             android:orientation="horizontal"
-            android:weightSum="2">
-
+            android:weightSum="3">
+            <TextView
+                android:id="@+id/suggest1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textAlignment="center" />
             <TextView
                 android:id="@+id/suggest2"
                 android:layout_width="match_parent"
@@ -86,7 +75,6 @@
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:gravity="center"/>
-
             <TextView
                 android:id="@+id/suggest3"
                 android:layout_width="match_parent"

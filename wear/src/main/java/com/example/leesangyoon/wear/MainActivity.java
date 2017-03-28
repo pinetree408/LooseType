@@ -39,7 +39,6 @@ public class MainActivity extends WearableActivity {
     private Timer jobScheduler;
 
     private ViewGroup taskView;
-    private TextView resetView;
     private TextView targetView;
     private TextView suggestFirstView;
     private TextView suggestSecondView;
@@ -62,6 +61,11 @@ public class MainActivity extends WearableActivity {
     File outputFile;
     SimpleDateFormat dateFormat;
 
+    private int dragThreshold = 30;
+    private final double angleFactor = (double) 180/Math.PI;
+    private float touchDownX, touchDownY;
+    private long touchDownTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,8 +84,6 @@ public class MainActivity extends WearableActivity {
 
         taskView = (ViewGroup) findViewById(R.id.task);
         taskView.setVisibility(View.GONE);
-
-        resetView = (TextView) findViewById(R.id.reset);
 
         targetView = (TextView) findViewById(R.id.target);
         setNextTarget();
@@ -110,23 +112,6 @@ public class MainActivity extends WearableActivity {
                     if (startTaskView.getClass() == v.getClass()) {
                         startTaskView.setVisibility(View.GONE);
                         startTask();
-                    }
-                }
-                return true;
-            }
-
-        });
-
-        resetView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (resetView.getClass() == v.getClass()) {
-                        Log.d(TAG, "RESET      : " + nowTarget);
-                        fileWrite("RESET," + nowTarget);
-                        targetInitialize();
-                        targetView.setText(nowTarget);
                     }
                 }
                 return true;
@@ -213,28 +198,78 @@ public class MainActivity extends WearableActivity {
         });
 
 
-        keyboardView.setOnTouchListener(new View.OnTouchListener() {
 
+        keyboardView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (keyboardView.getClass() == v.getClass()) {
+                int tempX = (int) event.getAxisValue(MotionEvent.AXIS_X);
+                int tempY = (int) event.getAxisValue(MotionEvent.AXIS_Y);
+                long eventTime = System.currentTimeMillis();
 
-                        String[] params = getInputInfo(event);
-                        inputString += params[0];
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (keyboardView.getClass() == v.getClass()) {
+                            touchDownTime = eventTime;
+                            touchDownX = tempX;
+                            touchDownY = tempY;
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        long touchTime = eventTime - touchDownTime;
+                        int xDir = (int) (touchDownX - tempX);
+                        int yDir = (int) (touchDownY - tempY);
+                        int len = (int) Math.sqrt(xDir * xDir + yDir * yDir);
+                        int speed;
+                        if (touchTime > 0) {
+                            speed = (int) (len * 1000 / touchTime);
+                        } else {
+                            speed = 0;
+                        }
+                        if (len > dragThreshold) {
+                            if (speed > 400) {
+                                double angle = Math.acos((double) xDir / len) * angleFactor;
+                                if (yDir < 0) {
+                                    angle = 360 - angle;
+                                }
+                                angle += 45;
+                                int id = (int) (angle / 90);
+                                if (id > 3) {
+                                    id = 0;
+                                }
+                                switch (id){
+                                    case 0:
+                                        //left
+                                        break;
+                                    case 1:
+                                        //top;
+                                        Log.d(TAG, "RESET      : " + nowTarget);
+                                        fileWrite("RESET," + nowTarget);
+                                        targetInitialize();
+                                        targetView.setText(nowTarget);
+                                        break;
+                                    case 2:
+                                        //right
+                                        break;
+                                    case 3:
+                                        //bottom;
+                                        break;
+                                }
+                            }
+                        } else {
+                            String[] params = getInputInfo(event);
+                            inputString += params[0];
 
-                        new SuggestionTask().execute(params);
-                        Log.d(TAG, "INPUT      : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
-                        fileWrite("INPUT,key : " + params[0] + ",postion : " + params[1] + "-" + params[2]);
+                            new SuggestionTask().execute(params);
+                            Log.d(TAG, "INPUT      : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
+                            fileWrite("INPUT,key : " + params[0] + ",postion : " + params[1] + "-" + params[2]);
 
-                        Double wpm = calculateWPM();
-                        //targetView.setText(String.format("%.2f", wpm));
-                        Log.d(TAG, "WPM        : " + wpm);
-                        fileWrite("WPM," + wpm);
-                    }
+                            Double wpm = calculateWPM();
+                            Log.d(TAG, "WPM        : " + wpm);
+                            fileWrite("WPM," + wpm);
+                        }
+                        break;
                 }
-
                 return true;
             }
         });
@@ -244,6 +279,7 @@ public class MainActivity extends WearableActivity {
         startView.setText(nowTarget);
         startView.setVisibility(View.VISIBLE);
         startView.setOnTouchListener(null);
+
         taskView.setVisibility(View.GONE);
 
         jobScheduler.schedule(
