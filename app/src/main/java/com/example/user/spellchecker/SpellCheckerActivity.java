@@ -2305,6 +2305,8 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                 try {
                     for (int j = 0; j < 5; j ++) {
                         index = 0;
+                        Log.d(TAG, "~ " + j + " - answer: " + answerList[j].length);
+                        Log.d(TAG, "~ " + j + " - result: " + resultList[j].length);
                         for (String item : resultList[j]) {
                             String answer = answerList[j][index];
                             index++;
@@ -2319,6 +2321,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                         }
                     }
                     index = 0;
+                    Log.d(TAG, "~ SIZE:" + targetList.size());
                     for (String target : targetList) {
                         mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(target)}, 18);
                     }
@@ -2402,17 +2405,31 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             Log.d(TAG, "~ Len 0:" + targetList.get(index) + "," + sourceList.get(index));
         }
         int flag = 0 ;
+        List<String> nameList = new ArrayList<String>();
         for (int j = 0; j < len; ++j) {
             if (j != 0) {
                 sb.append(", ");
             }
+            /*
             if (j == 0 || j == 1 || j == 2) {
                 if (si.getSuggestionAt(j).equals(sourceList.get(index))) {
                     flag++;
                 }
+            }*/
+            if (Character.isUpperCase(si.getSuggestionAt(j).charAt(0))) {
+                nameList.add(si.getSuggestionAt(j));
             }
             sb.append(si.getSuggestionAt(j));
         }
+
+        for (int k = 0; k < nameList.size(); k++) {
+            if (k == 0 || k == 1 || k == 2) {
+                if (nameList.get(k).equals(sourceList.get(index))) {
+                    flag++;
+                }
+            }
+        }
+
         if (len != 0 && flag == 0) {
             Log.d(TAG, "~ NOT-IN:" + targetList.get(index) + "," + sourceList.get(index));
         }

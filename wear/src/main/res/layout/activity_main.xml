@@ -34,43 +34,54 @@
         <TextView
             android:id="@+id/reset"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="15dp"
+            android:background="@drawable/border_gray"
             android:text="@string/reset"
-            android:textSize="15dp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:gravity="center"/>
-
-        <TextView
-            android:id="@+id/target"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:textSize="5dp"
             android:textStyle="bold"
             android:textAlignment="center"
             android:gravity="center"/>
 
         <LinearLayout
-            android:id="@+id/suggest"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="23dp"
             android:orientation="horizontal"
-            android:weightSum="3">
-
+            android:weightSum="2">
             <TextView
                 android:id="@+id/suggest1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="10dp"
+                android:paddingRight="10dp"
+                android:textSize="12dp"
                 android:textStyle="bold"
                 android:layout_weight="1"
-                android:textAlignment="center"
-                android:gravity="center"/>
+                android:gravity="right|center_vertical"
+                android:textAlignment="gravity" />
+            <TextView
+                android:id="@+id/target"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="10dp"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:gravity="left|center_vertical"
+                android:textAlignment="gravity"
+                android:background="@drawable/border_white"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/suggest"
+            android:layout_width="match_parent"
+            android:layout_height="23dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
 
             <TextView
                 android:id="@+id/suggest2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:textStyle="bold"
                 android:layout_weight="1"
                 android:textAlignment="center"
@@ -80,7 +91,7 @@
                 android:id="@+id/suggest3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:textStyle="bold"
                 android:layout_weight="1"
                 android:textAlignment="center"

@@ -95,7 +95,7 @@ public class KeyboardView extends View {
         double viewHeight = getHeight();
 
         double keyWidth = viewWidth / 10;
-        double keyHeight = viewHeight / 3;
+        double keyHeight = viewHeight / 4;
 
         if (keyWidthRef == -1.0) {
             keyWidthRef = keyWidth * 0.5;
@@ -117,7 +117,7 @@ public class KeyboardView extends View {
                     if (i == 1) {
                         leftPadding += keyWidth * 0.5;
                     } else if (i == 2) {
-                        leftPadding += keyWidth * 1.5;
+                        leftPadding += keyWidth * 1.0;
                     }
 
                     if (keyboardCharPos.size() != 26) {

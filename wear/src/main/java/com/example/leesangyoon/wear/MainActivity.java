@@ -2,6 +2,7 @@ package com.example.leesangyoon.wear;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -249,6 +250,14 @@ public class MainActivity extends WearableActivity {
                 new TimerTask() {
                     @Override
                     public void run() {
+                        runOnUiThread(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startView.setBackgroundColor(Color.parseColor("#f08080"));
+                                    }
+                                }
+                        );
                         startView.setOnTouchListener(new View.OnTouchListener() {
 
                             @Override
@@ -261,6 +270,7 @@ public class MainActivity extends WearableActivity {
                                                 new Runnable() {
                                                     @Override
                                                     public void run() {
+                                                        startView.setBackgroundColor(Color.parseColor("#ffffff"));
                                                         startView.setVisibility(View.GONE);
                                                         taskView.setVisibility(View.VISIBLE);
                                                     }
