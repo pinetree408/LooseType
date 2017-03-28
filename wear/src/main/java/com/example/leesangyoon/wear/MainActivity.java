@@ -2,7 +2,6 @@ package com.example.leesangyoon.wear;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -41,6 +40,7 @@ public class MainActivity extends WearableActivity {
     private TextView targetView;
     private TextView suggestFirstView;
     private TextView suggestSecondView;
+    private TextView suggestThirdView;
     private KeyboardView keyboardView;
 
     List<String> suggestResultList;
@@ -86,6 +86,7 @@ public class MainActivity extends WearableActivity {
 
         suggestFirstView = (TextView) findViewById(R.id.suggest1);
         suggestSecondView = (TextView) findViewById(R.id.suggest2);
+        suggestThirdView = (TextView) findViewById(R.id.suggest3);
 
         keyboardView = (KeyboardView) findViewById(R.id.keyboard);
 
@@ -117,7 +118,7 @@ public class MainActivity extends WearableActivity {
                 // TODO Auto-generated method stub
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (resetView.getClass() == v.getClass()) {
-                        Log.d(TAG, "RESET    : " + nowTarget);
+                        Log.d(TAG, "RESET      : " + nowTarget);
                         fileWrite("RESET," + nowTarget);
                         targetInitialize();
                         targetView.setText(nowTarget);
@@ -135,16 +136,16 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestFirstView.getClass() == v.getClass()) {
                         if (suggestFirstView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "SELECT1  : RIGHT");
+                            Log.d(TAG, "SELECT1    : RIGHT");
                             fileWrite("SELECT1,RIGHT");
                             targetInitialize();
                             setNextTarget();
                             startTask();
 
-                            Log.d(TAG, "START    : " + nowTarget);
+                            Log.d(TAG, "START      : " + nowTarget);
                             fileWrite("START," + nowTarget);
                         } else{
-                            Log.d(TAG, "SELECT1  : WRONG");
+                            Log.d(TAG, "SELECT1    : WRONG");
                             fileWrite("SELECT1,WRONG");
                         }
                     }
@@ -161,17 +162,43 @@ public class MainActivity extends WearableActivity {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (suggestSecondView.getClass() == v.getClass()) {
                         if (suggestSecondView.getText().equals(nowTarget)) {
-                            Log.d(TAG, "SELECT2  : RIGHT");
+                            Log.d(TAG, "SELECT2    : RIGHT");
                             fileWrite("SELECT2,RIGHT");
                             targetInitialize();
                             setNextTarget();
                             startTask();
 
-                            Log.d(TAG, "START    : " + nowTarget);
+                            Log.d(TAG, "START      : " + nowTarget);
                             fileWrite("START," + nowTarget);
                         } else{
-                            Log.d(TAG, "SELECT2  : WRONG");
+                            Log.d(TAG, "SELECT2    : WRONG");
                             fileWrite("SELECT2,WRONG");
+                        }
+                    }
+                }
+                return true;
+            }
+
+        });
+
+        suggestThirdView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (suggestThirdView.getClass() == v.getClass()) {
+                        if (suggestThirdView.getText().equals(nowTarget)) {
+                            Log.d(TAG, "SELECT3    : RIGHT");
+                            fileWrite("SELECT3,RIGHT");
+                            targetInitialize();
+                            setNextTarget();
+                            startTask();
+
+                            Log.d(TAG, "START      : " + nowTarget);
+                            fileWrite("START," + nowTarget);
+                        } else{
+                            Log.d(TAG, "SELECT3    : WRONG");
+                            fileWrite("SELECT3,WRONG");
                         }
                     }
                 }
@@ -192,12 +219,12 @@ public class MainActivity extends WearableActivity {
                         String[] params = getInputInfo(event);
                         new SuggestionTask().execute(params);
                         inputString += params[0];
-                        Log.d(TAG, "INPUT    : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
+                        Log.d(TAG, "INPUT      : key - " + params[0] + " postion - " + params[1] + "," + params[2]);
                         fileWrite("INPUT,key : " + params[0] + ",postion : " + params[1] + "-" + params[2]);
 
                         Double wpm = calculateWPM();
-                        targetView.setText(String.format("%.2f", wpm));
-                        Log.d(TAG, "WPM      : " + wpm);
+                        //targetView.setText(String.format("%.2f", wpm));
+                        Log.d(TAG, "WPM        : " + wpm);
                         fileWrite( "WPM," + wpm);
                     }
                 }
@@ -210,21 +237,37 @@ public class MainActivity extends WearableActivity {
     public void startTask() {
         startView.setText(nowTarget);
         startView.setVisibility(View.VISIBLE);
+        startView.setOnTouchListener(null);
         taskView.setVisibility(View.GONE);
 
         jobScheduler.schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
-                        runOnUiThread(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        startView.setVisibility(View.GONE);
-                                        taskView.setVisibility(View.VISIBLE);
+                        startView.setOnTouchListener(new View.OnTouchListener() {
+
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                // TODO Auto-generated method stub
+                                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                    if (startView.getClass() == v.getClass()) {
+                                        Log.d(TAG, "READY-START: " + nowTarget);
+                                        runOnUiThread(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        startView.setVisibility(View.GONE);
+                                                        taskView.setVisibility(View.VISIBLE);
+                                                    }
+                                                }
+                                        );
+
                                     }
                                 }
-                        );
+
+                                return true;
+                            }
+                        });
                     }
                 },
                 2000);
@@ -270,6 +313,7 @@ public class MainActivity extends WearableActivity {
 
         suggestFirstView.setText("");
         suggestSecondView.setText("");
+        suggestThirdView.setText("");
 
         startInputTime = null;
         totalInputTime = 0L;
@@ -314,7 +358,7 @@ public class MainActivity extends WearableActivity {
 
             long start = System.currentTimeMillis();
             suggestResultList = suggestion.getSuggestion(params[0],
-                    Double.parseDouble(params[1]), Double.parseDouble(params[2]));
+                    Double.parseDouble(params[1]), Double.parseDouble(params[2]), inputString);
             long end = System.currentTimeMillis();
             //Log.d(TAG,  "Suggestion Excution Time : " + ( end - start )/1000.0 );
 
@@ -331,10 +375,12 @@ public class MainActivity extends WearableActivity {
 
             suggestFirstView.setText("");
             suggestSecondView.setText("");
+            suggestThirdView.setText("");
 
             if (suggestedList.size() > 0) {
                 suggestFirstView.setText(suggestedList.get(0));
                 suggestSecondView.setText(suggestedList.get(1));
+                suggestThirdView.setText(suggestedList.get(2));
             }
         }
     }

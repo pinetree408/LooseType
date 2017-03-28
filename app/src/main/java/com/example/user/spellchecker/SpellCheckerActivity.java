@@ -2273,6 +2273,9 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
     Suggestion suggestion;
     List<String> suggestResultList;
 
+    List<String> targetList;
+    List<String> sourceList;
+
     int count;
 
     /** Called when the activity is first created. */
@@ -2280,6 +2283,11 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        final TextServicesManager tsm = (TextServicesManager) getSystemService(
+                Context.TEXT_SERVICES_MANAGER_SERVICE);
+        mScs = tsm.newSpellCheckerSession(null, null, this, true);
+
         mMainView = (TextView)findViewById(R.id.main);
         try {
             suggestion = new Suggestion();
@@ -2292,13 +2300,8 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, "Seq = " + s);
-                //long startTime = System.currentTimeMillis();
-                //suggestResultList = suggestion.getSuggestion(s.toString()));
-                //long endTime = System.currentTimeMillis();
-                //Log.d(TAG, "Excution Time : " + (endTime - startTime) / 1000.0);
-                /*
-                int answerCount = 0;
+                targetList = new ArrayList<String>();
+                sourceList = new ArrayList<String>();
                 try {
                     for (int j = 0; j < 5; j ++) {
                         index = 0;
@@ -2311,22 +2314,13 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                             if (answer.length() >= item.length() * 2) {
                                 continue;
                             }
-                            for (int k = 0; k < item.length(); k++) {
-                                if (k == (item.length() - 1)) {
-                                    suggestResultList = suggestion.getSuggestion(String.valueOf(item.charAt(k)));
-                                } else {
-                                    suggestion.getSuggestion(String.valueOf(item.charAt(k)));
-                                }
-                            }
-                            suggestion.suggestionInitilize();
-                            //suggestResultList = suggestion.getSuggestion(item);
-                            String suggestResult = suggestResultList.get(0);
-                            suggestResult = (suggestResult.charAt(0) + "").toUpperCase() + suggestResult.substring(1, suggestResult.length());
-                            if (!suggestResult.equals(answer)) {
-                                answerCount++;
-                                Log.d(TAG, (j + 1) + " - Answer: " + answer + " Input: " + item + " : " + suggestResultList.toString());
-                            }
+                            targetList.add(item);
+                            sourceList.add(answer);
                         }
+                    }
+                    index = 0;
+                    for (String target : targetList) {
+                        mScs.getSentenceSuggestions(new TextInfo[]{new TextInfo(target)}, 18);
                     }
 
 
@@ -2334,15 +2328,14 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                     Log.d(TAG, "Error: " + e.toString());
                 }
 
-                Log.d(TAG, "Total: " + String.valueOf(answerCount));
-                */
-
+                /*
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mMainView.setText(suggestResultList.toString());
                     }
                 });
+                */
 
             }
 
@@ -2362,9 +2355,11 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
     @Override
     public void onResume() {
         super.onResume();
+
         final TextServicesManager tsm = (TextServicesManager) getSystemService(
                 Context.TEXT_SERVICES_MANAGER_SERVICE);
         mScs = tsm.newSpellCheckerSession(null, null, this, true);
+        /*
         if (mScs != null) {
             // Instantiate TextInfo for each query
             // TextInfo can be passed a sequence number and a cookie number to identify the resulten
@@ -2388,7 +2383,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
         } else {
             Log.e(TAG, "Couldn't obtain the spell checker service.");
         }
-
+        */
     }
     @Override
     public void onPause() {
@@ -2402,31 +2397,24 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
             final StringBuilder sb, final StringBuilder rankList, final SuggestionsInfo si, final int length, final int offset) {
         // Returned suggestions are contained in SuggestionsInfo
         final int len = si.getSuggestionsCount();
-        //Log.d(TAG, "test: " + result1[index] + " " +  answer1[index] + " "+ String.valueOf(len));
         sb.append('\n');
+        if (len == 0) {
+            Log.d(TAG, "~ Len 0:" + targetList.get(index) + "," + sourceList.get(index));
+        }
+        int flag = 0 ;
         for (int j = 0; j < len; ++j) {
             if (j != 0) {
                 sb.append(", ");
             }
-            if (j == 0) {
-                //if (si.getSuggestionAt(j).toLowerCase().equals(suggestion.getDictionary()[index])) {
-                if (si.getSuggestionAt(j).toLowerCase().equals("francisco")) {
-                    rankList.append(count);
-                }
-            } else {
-                if (si.getSuggestionAt(j).toLowerCase().equals("francisco")) {
-                    rankList.append(count);
+            if (j == 0 || j == 1 || j == 2) {
+                if (si.getSuggestionAt(j).equals(sourceList.get(index))) {
+                    flag++;
                 }
             }
             sb.append(si.getSuggestionAt(j));
         }
-        //if (count == suggestion.getDictionary()[index].length()) {
-        if (count == "francisco".length()) {
-            Log.d(TAG, "Simul: " + "francisco" + " Result: " + rankList.toString());
-            count = 1;
-            index++;
-        } else {
-            count++;
+        if (len != 0 && flag == 0) {
+            Log.d(TAG, "~ NOT-IN:" + targetList.get(index) + "," + sourceList.get(index));
         }
     }
     /**
@@ -2476,6 +2464,7 @@ public class SpellCheckerActivity extends AppCompatActivity implements SpellChec
                         sb, rankList, ssi.getSuggestionsInfoAt(j), ssi.getOffsetAt(j), ssi.getLengthAt(j));
             }
         }
+        index++;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

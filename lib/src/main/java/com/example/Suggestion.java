@@ -52,19 +52,21 @@ public class Suggestion {
         }
     }
 
-    public List<String> getSuggestion(String input, double x, double y) {
+    public List<String> getSuggestion(String input, double x, double y, String inputString) {
 
         inputIndex++;
 
         List<String> suggetedResult = new ArrayList<String>();
         List<String> min1Target = new ArrayList<String>();
         List<String> min2Target = new ArrayList<String>();
+        List<String> min3Target = new ArrayList<String>();
 
         double minDist1 = Double.POSITIVE_INFINITY;
         double minDist2 = Double.POSITIVE_INFINITY;
+        double minDist3 = Double.POSITIVE_INFINITY;
 
         for (String source: dictionary) {
-            double computedDist = computeLevenshteinDistanceChar(source, input.charAt(0), x, y);
+            double computedDist = computeLevenshteinDistanceChar(source, input.charAt(0), x, y, inputString);
             if (computedDist < minDist1) {
                 minDist2 = minDist1;
                 min2Target.clear();
@@ -73,25 +75,46 @@ public class Suggestion {
                 min1Target.clear();
                 min1Target.add(source);
             } else if (computedDist == minDist1) {
-                minDist2 = computedDist;
                 min1Target.add(source);
+            } else if (computedDist < minDist2) {
+                minDist2 = computedDist;
+                min2Target.clear();
+                min2Target.add(source);
             } else if (computedDist == minDist2) {
                 min2Target.add(source);
+            } else if (computedDist < minDist3) {
+                minDist3 = computedDist;
+                min3Target.clear();
+                min3Target.add(source);
+            } else if (computedDist == minDist3) {
+                min3Target.add(source);
             }
         }
 
-        if (min1Target.size() > 1) {
+        if (min1Target.size() > 2) {
             suggetedResult.add(min1Target.get(0));
             suggetedResult.add(min1Target.get(1));
-        } else {
+            suggetedResult.add(min1Target.get(2));
+        } else if (min1Target.size() == 2) {
             suggetedResult.add(min1Target.get(0));
+            suggetedResult.add(min1Target.get(1));
             suggetedResult.add(min2Target.get(0));
+        } else if (min1Target.size() == 1) {
+            if (min2Target.size() > 1) {
+                suggetedResult.add(min1Target.get(0));
+                suggetedResult.add(min2Target.get(0));
+                suggetedResult.add(min2Target.get(1));
+            } else {
+                suggetedResult.add(min1Target.get(0));
+                suggetedResult.add(min2Target.get(0));
+                suggetedResult.add(min3Target.get(0));
+            }
         }
 
         return suggetedResult;
     }
 
-    public double computeLevenshteinDistanceChar(String source, char target, double x, double y) {
+    public double computeLevenshteinDistanceChar(String source, char target, double x, double y, String inputString) {
 
         int sourceLen = source.length() + 1;
 
@@ -109,7 +132,12 @@ public class Suggestion {
 
         suggestionMap.put(source, newDistance);
 
-        return newDistance[sourceLen-1];
+        int targetIndex = sourceLen-1;
+        if (sourceLen - 1 > inputString.length() + 2) {
+            targetIndex = inputString.length() + 2;
+        }
+
+        return newDistance[targetIndex];
     }
 
     public double getPenelty(char a, char b, double x, double y) {

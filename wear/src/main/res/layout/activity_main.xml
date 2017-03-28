@@ -53,13 +53,13 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:orientation="horizontal"
-            android:weightSum="2">
+            android:weightSum="3">
 
             <TextView
                 android:id="@+id/suggest1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="20dp"
+                android:textSize="10dp"
                 android:textStyle="bold"
                 android:layout_weight="1"
                 android:textAlignment="center"
@@ -69,7 +69,17 @@
                 android:id="@+id/suggest2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="20dp"
+                android:textSize="10dp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/suggest3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="10dp"
                 android:textStyle="bold"
                 android:layout_weight="1"
                 android:textAlignment="center"
