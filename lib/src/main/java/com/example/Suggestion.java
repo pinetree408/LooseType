@@ -122,6 +122,10 @@ public class Suggestion {
                 suggetedResult.add("");
                 suggetedResult.add("");
             }
+        } else {
+            suggetedResult.add("");
+            suggetedResult.add("");
+            suggetedResult.add("");
         }
 
         return suggetedResult;

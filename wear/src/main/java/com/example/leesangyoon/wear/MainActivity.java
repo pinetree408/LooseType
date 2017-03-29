@@ -91,6 +91,9 @@ public class MainActivity extends WearableActivity {
         userViewList.add((TextView) findViewById(R.id.user10));
         userViewList.add((TextView) findViewById(R.id.user11));
         userViewList.add((TextView) findViewById(R.id.user12));
+        userViewList.add((TextView) findViewById(R.id.user13));
+        userViewList.add((TextView) findViewById(R.id.user14));
+        userViewList.add((TextView) findViewById(R.id.user15));
 
         startTaskView = (TextView) findViewById(R.id.main);
 
@@ -130,6 +133,7 @@ public class MainActivity extends WearableActivity {
                         if (userView.getClass() == v.getClass()) {
                             userNum = index;
                             setTargetList(userNum);
+                            StdRandom.shuffle(targetList);
                             String filePath = Environment.getExternalStorageDirectory().getAbsoluteFile() + "/";
                             String fileName = "result_bb_" + userNum + "_" + block +  ".csv";
                             Log.d(TAG, filePath + fileName);
@@ -506,6 +510,18 @@ public class MainActivity extends WearableActivity {
             case 12:
                 //2
                 targetList = Source.set2;
+                break;
+            case 13: // P3
+                //2
+                targetList = Source.set2;
+                break;
+            case 14: // P5
+                //1
+                targetList = Source.set1;
+                break;
+            case 15: // P1
+                //3
+                targetList = Source.set3;
                 break;
         }
     }
