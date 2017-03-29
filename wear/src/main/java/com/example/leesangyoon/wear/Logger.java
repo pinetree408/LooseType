@@ -25,6 +25,10 @@ public class Logger {
         this.fileName = fileName;
     }
 
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     public void fileOpen(int userNum, int block) {
         outputFile = new File(filePath + fileName);
         boolean isSuccess = false;
@@ -40,12 +44,13 @@ public class Logger {
         }else{
             Log.i( TAG , "file.exists" );
             block++;
-            fileName = "result_" + userNum + "_" + block +  ".csv";
+            fileName = "result_bb_" + userNum + "_" + block +  ".csv";
             fileOpen(userNum, block);
         }
     }
 
     public void fileWriteHeader(String header) {
+        header = header + "\n";
         fileWrite(header);
     }
     public void fileWriteLog(

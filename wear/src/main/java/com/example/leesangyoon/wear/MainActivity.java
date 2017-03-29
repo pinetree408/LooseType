@@ -48,8 +48,6 @@ public class MainActivity extends WearableActivity {
 
     String inputString = "";
 
-    Long startInputTime;
-
     Logger logger;
     String fileFormat = "block, trial, eventTime, target, inputKey, posX1, posY1, list1, list2, list3";
 
@@ -59,7 +57,7 @@ public class MainActivity extends WearableActivity {
     private long touchDownTime;
 
     int block;
-    final int numOfBlock = 6;
+    final int numOfBlock = 9;
     int trial;
     final int numOfTrial = 25;
     long startTime;
@@ -80,6 +78,7 @@ public class MainActivity extends WearableActivity {
 
         userSelectView = (ViewGroup) findViewById(R.id.user);
         userViewList = new ArrayList<TextView>();
+        userViewList.add((TextView) findViewById(R.id.user0));
         userViewList.add((TextView) findViewById(R.id.user1));
         userViewList.add((TextView) findViewById(R.id.user2));
         userViewList.add((TextView) findViewById(R.id.user3));
@@ -122,7 +121,7 @@ public class MainActivity extends WearableActivity {
 
         for (int i = 0; i < userViewList.size(); i++) {
             final TextView userView = userViewList.get(i);
-            final int index = i + 1;
+            final int index = i;
             userView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -132,7 +131,7 @@ public class MainActivity extends WearableActivity {
                             userNum = index;
                             setTargetList(userNum);
                             String filePath = Environment.getExternalStorageDirectory().getAbsoluteFile() + "/";
-                            String fileName = "result_" + userNum + "_" + block +  ".csv";
+                            String fileName = "result_bb_" + userNum + "_" + block +  ".csv";
                             Log.d(TAG, filePath + fileName);
                             logger = new Logger(filePath, fileName);
                             logger.fileOpen(userNum, block);
@@ -178,6 +177,7 @@ public class MainActivity extends WearableActivity {
                                         (int) event.getAxisValue(MotionEvent.AXIS_X),
                                         (int) event.getAxisValue(MotionEvent.AXIS_Y),
                                         String.valueOf(suggestView.getText()), "", "");
+
                                 if (suggestView.getText().equals(nowTarget)) {
                                     targetInitialize();
                                     setNextTarget();
@@ -272,6 +272,12 @@ public class MainActivity extends WearableActivity {
         taskLayout.setVisibility(View.GONE);
 
         if (trial == numOfTrial) {
+            endView.setText("Block " + (block + 1) + " Done!");
+            if (block == 5){
+                endView.append("Stand Up!");
+            } else if (block == (numOfBlock - 1)) {
+                endView.setText("Thank you!");
+            }
             endView.setVisibility(View.VISIBLE);
             endView.setOnTouchListener(null);
             jobScheduler.schedule(
@@ -295,7 +301,8 @@ public class MainActivity extends WearableActivity {
 
                                                 trial = -1;
                                                 block++;
-
+                                                String fileName = "result_bb_" + userNum + "_" + block +  ".csv";
+                                                logger.setFileName(fileName);
                                                 logger.fileOpen(userNum, block);
                                                 logger.fileWriteHeader(fileFormat);
 
@@ -308,6 +315,7 @@ public class MainActivity extends WearableActivity {
                                                             public void run() {
                                                                 endView.setBackgroundColor(Color.parseColor("#ffffff"));
                                                                 endView.setVisibility(View.GONE);
+                                                                endView.setText("");
                                                             }
                                                         }
                                                 );
@@ -371,7 +379,11 @@ public class MainActivity extends WearableActivity {
 
     public void setNextTarget() {
         trial++;
-        nowTarget = targetList[trial + (block * 25)];
+        if (!(block == (numOfBlock - 1) && trial == 25)) {
+            nowTarget = targetList[trial + (block * 25)];
+        } else {
+            nowTarget = "";
+        }
         targetView.setText(nowTarget);
     }
 
@@ -382,8 +394,6 @@ public class MainActivity extends WearableActivity {
         for (TextView suggestView : suggestViewList) {
             suggestView.setText("");
         }
-
-        startInputTime = null;
     }
 
     public String[] getInputInfo(MotionEvent event) {
@@ -421,7 +431,7 @@ public class MainActivity extends WearableActivity {
                     suggestResultList.get(0), suggestResultList.get(1), suggestResultList.get(2)
                     );
 
-            if (params[0].equals(String.valueOf(inputString.charAt(inputString.length()-1)))) {
+            if ((inputString.length() > 0) && params[0].equals(String.valueOf(inputString.charAt(inputString.length()-1)))) {
                 return suggestResultList;
             }
 
@@ -446,6 +456,9 @@ public class MainActivity extends WearableActivity {
 
     public void setTargetList(int userNum) {
         switch (userNum) {
+            case 0:
+                targetList = Source.set4;
+                break;
             case 1:
                 //3
                 targetList = Source.set3;

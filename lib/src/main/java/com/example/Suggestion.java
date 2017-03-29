@@ -107,10 +107,20 @@ public class Suggestion {
                 suggetedResult.add(min1Target.get(0));
                 suggetedResult.add(min2Target.get(0));
                 suggetedResult.add(min2Target.get(1));
+            } else if (min2Target.size() == 1) {
+                if (min3Target.size() > 0) {
+                    suggetedResult.add(min1Target.get(0));
+                    suggetedResult.add(min2Target.get(0));
+                    suggetedResult.add(min3Target.get(0));
+                } else {
+                    suggetedResult.add(min1Target.get(0));
+                    suggetedResult.add(min2Target.get(0));
+                    suggetedResult.add("");
+                }
             } else {
                 suggetedResult.add(min1Target.get(0));
-                suggetedResult.add(min2Target.get(0));
-                suggetedResult.add(min3Target.get(0));
+                suggetedResult.add("");
+                suggetedResult.add("");
             }
         }
 
